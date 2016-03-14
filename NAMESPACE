@@ -5,6 +5,6 @@ importFrom("readMzXmlData",readMzXmlFile)
 import("grDevices")
 import("graphics")
 importFrom("stats", "var")
-importFrom("utils", "write.table")
+import("utils")
 
 useDynLib(enviPick, getEIC,  masspart, rtpart, densvec, gapfill, pickpeak, picklist, plotit, binRT, binmz, agglom, indexed, partID)
