@@ -24,8 +24,8 @@ function(
 		}else{
 			max_mz<-maxmz
 		}
-		if(!is.logical(polarity)){
-			if((polarity!="positive")&(polarity!="negative")){
+		if(!is.logical(ion_mode)){
+			if((ion_mode!="positive")&(ion_mode!="negative")){
 				stop("Wrong polarity argument")
 			}
 		}
@@ -94,9 +94,9 @@ function(
 			if((any(mz1[[i]]$metaData$msLevel==MSlevel)) & (mz1[[i]]$metaData$peaksCount>0)){
 				if((minRT!=FALSE)&(mz1[[i]]$metaData$retentionTime<minRT)) next
 				if((maxRT!=FALSE)&(mz1[[i]]$metaData$retentionTime>maxRT)) next
-				if(!is.logical(polarity)){
-					if((polarity=="positive")&(mz1[[i]]$metaData$polarity!="+")) next
-					if((polarity=="negative")&(mz1[[i]]$metaData$polarity!="-")) next
+				if(!is.logical(ion_mode)){
+					if((ion_mode=="positive")&(mz1[[i]]$metaData$polarity!="+")) next
+					if((ion_mode=="negative")&(mz1[[i]]$metaData$polarity!="-")) next
 				}
 				if(any(names(mz1[[i]]$metaData)=="centroided")){
 					if(mz1[[i]]$metaData$centroided!=1){
@@ -128,9 +128,9 @@ function(
 			if(any(mz1[[i]]$metaData$msLevel==MSlevel) & (mz1[[i]]$metaData$peaksCount>0)){
 				if((minRT!=FALSE)&(mz1[[i]]$metaData$retentionTime<minRT)) next
 				if((maxRT!=FALSE)&(mz1[[i]]$metaData$retentionTime>maxRT)) next
-				if(!is.logical(polarity)){
-					if((polarity=="positive")&(mz1[[i]]$metaData$polarity!="+")) next
-					if((polarity=="negative")&(mz1[[i]]$metaData$polarity!="-")) next
+				if(!is.logical(ion_mode)){
+					if((ion_mode=="positive")&(mz1[[i]]$metaData$polarity!="+")) next
+					if((ion_mode=="negative")&(mz1[[i]]$metaData$polarity!="-")) next
 				}
 				to<-(from+sum(mz1[[i]][[1]]$mass>=min_mz & mz1[[i]][[1]]$mass<=max_mz,na.rm=TRUE)-1)
 				getpeaks[from:to,1]<-mz1[[i]][[1]]$mass[(mz1[[i]][[1]]$mass>=min_mz & mz1[[i]][[1]]$mass<=max_mz)]
