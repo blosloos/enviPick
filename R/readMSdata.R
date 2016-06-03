@@ -6,7 +6,8 @@ function(
 			minRT=FALSE,
 			maxRT=FALSE,
 			minmz=FALSE,
-			maxmz=FALSE
+			maxmz=FALSE,
+			polarity="positive"
 		){
 	
 		##########################################################################
@@ -22,6 +23,11 @@ function(
 			max_mz<-Inf
 		}else{
 			max_mz<-maxmz
+		}
+		if(!is.logical(polarity)){
+			if((polarity!="positive")&(polarity!="negative")){
+				stop("Wrong polarity argument")
+			}
 		}
 		##########################################################################
 	  
@@ -88,6 +94,10 @@ function(
 			if((any(mz1[[i]]$metaData$msLevel==MSlevel)) & (mz1[[i]]$metaData$peaksCount>0)){
 				if((minRT!=FALSE)&(mz1[[i]]$metaData$retentionTime<minRT)) next
 				if((maxRT!=FALSE)&(mz1[[i]]$metaData$retentionTime>maxRT)) next
+				if(!is.logical(polarity)){
+					if((polarity=="positive")&(mz1[[i]]$metaData$polarity!="+")) next
+					if((polarity=="negative")&(mz1[[i]]$metaData$polarity!="-")) next
+				}
 				if(any(names(mz1[[i]]$metaData)=="centroided")){
 					if(mz1[[i]]$metaData$centroided!=1){
 						stop("\nYour .mzXML-file has not been centroided.\n")
@@ -118,6 +128,10 @@ function(
 			if(any(mz1[[i]]$metaData$msLevel==MSlevel) & (mz1[[i]]$metaData$peaksCount>0)){
 				if((minRT!=FALSE)&(mz1[[i]]$metaData$retentionTime<minRT)) next
 				if((maxRT!=FALSE)&(mz1[[i]]$metaData$retentionTime>maxRT)) next
+				if(!is.logical(polarity)){
+					if((polarity=="positive")&(mz1[[i]]$metaData$polarity!="+")) next
+					if((polarity=="negative")&(mz1[[i]]$metaData$polarity!="-")) next
+				}
 				to<-(from+sum(mz1[[i]][[1]]$mass>=min_mz & mz1[[i]][[1]]$mass<=max_mz,na.rm=TRUE)-1)
 				getpeaks[from:to,1]<-mz1[[i]][[1]]$mass[(mz1[[i]][[1]]$mass>=min_mz & mz1[[i]][[1]]$mass<=max_mz)]
 				getpeaks[from:to,2]<-mz1[[i]][[1]]$intensity[(mz1[[i]][[1]]$mass>=min_mz & mz1[[i]][[1]]$mass<=max_mz)]				
