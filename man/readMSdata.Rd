@@ -11,7 +11,7 @@ Initiates an MSlist object and reads LC-HRMS measurement data from .mzXML files.
 
 \usage{
 readMSdata(filepath.mzXML, MSlevel=c(1), progbar=FALSE, minRT=FALSE, 
-maxRT=FALSE, minmz=FALSE, maxmz=FALSE)
+maxRT=FALSE, minmz=FALSE, maxmz=FALSE, ion_mode=FALSE)
 }
 
 \arguments{
@@ -34,7 +34,8 @@ MSlist[[4]] is resorted accordingly during all peak picking steps.
 Setting \code{minRT}, \code{maxRT}, \code{minmz} or \code{maxmz} allows you to filter your .mzML data. 
 On the one hand, this may be very useful if only being interested in certain ranges of an experiment.
 On the other hand, this allows you to upload subset data of an experiment too large to be loaded into R at once.
-\code{ion_mode} allows to filter scans of a specific polarity from .mzXML files, if not set to FALSE.
+\code{ion_mode} allows to filter scans of a specific polarity from .mzXML files, if not set to FALSE; useful for
+files acquired under polarity switching.
 }
 
 \value{

@@ -7,7 +7,7 @@ function(
 			maxRT=FALSE,
 			minmz=FALSE,
 			maxmz=FALSE,
-			polarity="positive"
+			ion_mode=FALSE
 		){
 	
 		##########################################################################
