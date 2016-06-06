@@ -88,13 +88,20 @@ observe({ ######################################################################
       }    
       # (1) data upload ########################################################
       if(status=="Step 1 of 4 - reading data ... wait"){
+		if(isolate(input$ion_mode)=="FALSE"){
+			use_mode<-FALSE
+		}else{
+			use_mode<-isolate(input$ion_mode)
+		}
         MSlist  <<- readMSdata(
               isolate(input$file1[[4]]),
               MSlevel=isolate(input$MSlevel),
               minRT=FALSE,
               maxRT=FALSE,
               minmz=FALSE,
-              maxmz=FALSE)      
+              maxmz=FALSE,
+			  ion_mode=use_mode
+			  )      
         output$error<-renderText(MSlist[[1]][[1]])
         status<<-"Step 2 of 4 - partitioning ... wait"
         time_elapsed<-c((proc.time() - ptm)[[3]]/60)

@@ -44,6 +44,8 @@ recurs=3, weight=2, SB=3, SN=2, minint=1E5, maxint=1E7, ended=2, ion_mode=FALSE,
 \details{
 For further details on the parameter settings, please refer to the arguments of the underlying functions \code{\link[enviPick]{readMSdata}}, 
 \code{\link[enviPick]{mzagglom}}, \code{\link[enviPick]{mzclust}} and \code{\link[enviPick]{mzpick}}. 
+\code{ion_mode} allows to filter scans of a specific polarity from .mzXML files, if not set to FALSE; useful for
+files acquired under polarity switching.
 }
 
 \value{
