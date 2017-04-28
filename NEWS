@@ -1,5 +1,10 @@
 enviPick News
 
+
+CHANGES in version 1.6:
+
+	(1) readMSdata function: debug for empty scan readings
+
 CHANGES in version 1.5:
 
 	(1) readMSdata function: set polarity of scans to be read

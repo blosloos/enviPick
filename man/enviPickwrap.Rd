@@ -13,7 +13,8 @@ A wrapper combining data upload, partitioning, EIC clustering and EIC peak detec
 \usage{
 enviPickwrap(filepath.mzXML, MSlevel=c(1), dmzgap=15, dmzdens=4, ppm=TRUE, 
 drtgap=500, drtsmall=20, drtdens=250, drtfill=10, drttotal=200, minpeak=4,  
-recurs=3, weight=2, SB=3, SN=2, minint=1E5, maxint=1E7, ended=2, ion_mode=FALSE, progbar=FALSE)
+recurs=3, weight=2, SB=3, SN=2, minint=1E5, maxint=1E7, ended=2, 
+ion_mode=FALSE, progbar=FALSE)
 }
 
 \arguments{

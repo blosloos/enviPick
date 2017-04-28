@@ -132,9 +132,11 @@ function(
 					if((ion_mode=="positive")&(mz1[[i]]$metaData$polarity!="+")) next
 					if((ion_mode=="negative")&(mz1[[i]]$metaData$polarity!="-")) next
 				}
-				to<-(from+sum(mz1[[i]][[1]]$mass>=min_mz & mz1[[i]][[1]]$mass<=max_mz,na.rm=TRUE)-1)
-				getpeaks[from:to,1]<-mz1[[i]][[1]]$mass[(mz1[[i]][[1]]$mass>=min_mz & mz1[[i]][[1]]$mass<=max_mz)]
-				getpeaks[from:to,2]<-mz1[[i]][[1]]$intensity[(mz1[[i]][[1]]$mass>=min_mz & mz1[[i]][[1]]$mass<=max_mz)]				
+				those<-which(mz1[[i]][[1]]$mass>=min_mz & mz1[[i]][[1]]$mass<=max_mz)
+				if(length(those)==0){next}
+				to<-(from+length(those)-1)
+				getpeaks[from:to,1]<-mz1[[i]][[1]]$mass[those]
+				getpeaks[from:to,2]<-mz1[[i]][[1]]$intensity[those]				
 				getpeaks[from:to,3]<-(mz1[[i]]$metaData$retentionTime)
 				from<-(to+1)	  
 			}
