@@ -113,7 +113,7 @@ function(
 			}
 		}
 		if(peaknumb==0){
-			stop("\nWith this file & settings: no peaks available.\n")
+			stop("\nWith this file & settings: no peaks available. Maybe a wrong ionization mode is specified?\n")
 		}
 		scans<-list(0)
 		scans[[1]]<-RT      
