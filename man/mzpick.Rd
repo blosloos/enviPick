@@ -26,6 +26,7 @@ from = FALSE, to = FALSE)}
   \item{minint}{Peak definition - minimum intensity of a peak}
   \item{maxint}{Peaks above this intensity are always retained, regardless of other checks}
   \item{ended}{Within the peak detection recursion set by argument \code{recurs}, how often can a peak detection fail to end the recursion? }
+  \item{get_mass}{Use default mean (mean) or intensity-weighted mean (wmean) of centroids to derive peak m/z?}
   \item{progbar}{For debugging, ignore}
   \item{from}{For debugging, ignore}
   \item{to}{For debugging, ignore}

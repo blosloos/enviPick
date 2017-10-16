@@ -190,51 +190,51 @@ extern "C"{
             inte = NUMERIC_POINTER(intensity);
             int minpeak2 = INTEGER_VALUE(minpeak);
             double maxint2 = NUMERIC_VALUE(maxint);
-			double tempmax=0;
+			double tempmax = 0;
             int maxind = INTEGER_VALUE(maxindex);
 			int leng = LENGTH(index);
-            int n,from,to,counted,atind;
+            int n, from, to, counted, atind;
             SEXP outit;
             PROTECT(outit = allocMatrix(INTSXP, maxind, 3));
             int *at;
             at = INTEGER_POINTER(outit);
-            for(n=0;n<(maxind*3);n++){
-                *(at+n) = 0;
+            for(n=0; n<(maxind*3); n++){
+                *(at + n) = 0;
             }
 
-            from=1;
-            to=1;
-            counted=1;
-            tempmax=*inte;
-            atind=0;
-            for(n=1;n<leng;n++){
-                if(*(ind+n)!=*(ind+n-1)){
-                	if( ((tempmax>=maxint2) || (counted>=minpeak2)) && (*(ind+n-1)!=0) ){
-                   		*(at+atind)=from;
-                        *(at+maxind+atind)=to;
-                   		*(at+(maxind*2)+atind)=counted;
+            from = 1;
+            to = 1;
+            counted = 1;
+            tempmax = *inte;
+            atind = 0;
+            for(n = 1; n < leng; n++){
+                if(*(ind + n) != *(ind + n - 1)){
+                	if( ((tempmax >= maxint2) || (counted >= minpeak2)) && (*(ind + n - 1) != 0) ){
+                   		*(at + atind) = from;
+                        *(at + maxind + atind) = to;
+                   		*(at + (maxind*2) + atind) = counted;
                    		atind++;
                     };
-                	from=(n+1);
-                	to=from;
-                    counted=1;
-                    tempmax=*(inte+n);
+                	from = (n + 1);
+                	to = from;
+                    counted = 1;
+                    tempmax = *(inte + n);
                 }else{
-                	if(*(inte+n)>tempmax){
-               	        tempmax=*(inte+n);
+                	if(*(inte+n) > tempmax){
+               	        tempmax = *(inte + n);
                 	};
                     to++;
                     counted++;
                 }
             }
             n--;
-            if(  ((tempmax>=maxint2)||(counted>=minpeak2)) && (*(ind+n)!=0)  ){
-                *(at+atind)=from;
-                *(at+maxind+atind)=to;
-                *(at+(maxind*2)+atind)=counted;
+            if(  ((tempmax >= maxint2)||(counted >= minpeak2)) && (*(ind + n) != 0)  ){
+                *(at + atind) = from;
+                *(at + maxind + atind) = to;
+                *(at + (maxind*2) + atind) = counted;
             }
 
-            SETLENGTH(outit,maxind*3);
+            SETLENGTH(outit, maxind * 3);
             UNPROTECT(6);
             return outit;
 
@@ -964,7 +964,7 @@ extern "C"{
                         SEXP upint,
                         SEXP ended,
                         SEXP win
-                      ){
+            ){
 
            PROTECT(out1 = AS_NUMERIC(out1));
            PROTECT(drtlarge = AS_NUMERIC(drtlarge));

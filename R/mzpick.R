@@ -11,6 +11,7 @@ function(           MSlist,
                     minint=1E4,
                     maxint=1E7,
                     ended=2,
+					get_mass = wmean,
                     progbar=FALSE,
                     from=FALSE,
                     to=FALSE
@@ -18,6 +19,7 @@ function(           MSlist,
 
     ############################################################################
     # check inputs #############################################################
+	if(all(is.na(match(get_mass, c("mean", "wmean"))))){stop("Wrong wmean argument")}
     if(!length(MSlist)==8){stop("This is not an MSlist object")}
     if(minpeak<=0){stop("minpeak must be >0!")};
     if(drtsmall<=0 || drtsmall<=0){stop("drt must be >0!")};
@@ -86,7 +88,7 @@ function(           MSlist,
 		  if(!all(out2[,10]==0)){      
 			peaknumb<-peaknumb+max(out2[,10]);
 			out2[,10]<-out2[,10]+startat;         
-			for(k in 1:length(out2[,10])){
+			for(k in 1:length(out2[,10])){ # very unelegant approach to remove gap-filling!
 			  if(out2[k,10]!=startat){
 				MSlist[[4]][[2]][out2[k,4],7]<-out2[k,10]
 			  }
@@ -126,45 +128,53 @@ function(           MSlist,
     ############################################################################
     maxit<-max(MSlist[[4]][[2]][,7]);
 	# generate peaklist ########################################################
-    if(maxit>0){
- 	  peaklist<-matrix(0,ncol=11,nrow=maxit)
-      colnames(peaklist)<-c("m/z","var_m/z","max_int","sum_int","RT","minRT","maxRT","part_ID","EIC_ID","peak_ID","Score")
-      if(progbar==TRUE){setWinProgressBar(prog, i, title = "Generate peak table", label = NULL);}
+    if(maxit > 0){
+ 	  peaklist <- matrix(0,ncol=11,nrow=maxit)
+      colnames(peaklist) <- c("m/z","var_m/z","max_int","sum_int","RT","minRT","maxRT","part_ID","EIC_ID","peak_ID","Score")
+      if(progbar == TRUE){setWinProgressBar(prog, i, title = "Generate peak table", label = NULL);}
       for(i in 1:length(MSlist[[7]][,1])){
-        peaklist[i,1]<-mean(MSlist[[4]][[2]][MSlist[[7]][i,1]:MSlist[[7]][i,2],1])
-        peaklist[i,2]<-var(MSlist[[4]][[2]][MSlist[[7]][i,1]:MSlist[[7]][i,2],1])
-        peaklist[i,3]<-max(MSlist[[4]][[2]][MSlist[[7]][i,1]:MSlist[[7]][i,2],2])
-        peaklist[i,4]<-sum(MSlist[[4]][[2]][MSlist[[7]][i,1]:MSlist[[7]][i,2],2])
-        peaklist[i,5]<-(MSlist[[4]][[2]][MSlist[[7]][i,1]:MSlist[[7]][i,2],3][MSlist[[4]][[2]][MSlist[[7]][i,1]:MSlist[[7]][i,2],2]==max(MSlist[[4]][[2]][MSlist[[7]][i,1]:MSlist[[7]][i,2],2])[1]])[1]
-		peaklist[i,6]<-min(MSlist[[4]][[2]][MSlist[[7]][i,1]:MSlist[[7]][i,2],3])
-        peaklist[i,7]<-max(MSlist[[4]][[2]][MSlist[[7]][i,1]:MSlist[[7]][i,2],3])        
-        peaklist[i,8:10]<-MSlist[[4]][[2]][MSlist[[7]][i,1],5:7]
-        peaklist[i,11]<-0;
+		if(get_mass == "mean"){
+			peaklist[i,1] <- mean(MSlist[[4]][[2]][MSlist[[7]][i,1]:MSlist[[7]][i,2],1])
+        }
+		if(get_mass == "wmean"){
+			peaklist[i,1] <- weighted.mean(
+				x = (MSlist[[4]][[2]][MSlist[[7]][i,1]:MSlist[[7]][i,2],1]),
+				w = (MSlist[[4]][[2]][MSlist[[7]][i,1]:MSlist[[7]][i,2],2])
+			)
+        }		
+		peaklist[i,2] <- var(MSlist[[4]][[2]][MSlist[[7]][i,1]:MSlist[[7]][i,2],1])
+        peaklist[i,3] <- max(MSlist[[4]][[2]][MSlist[[7]][i,1]:MSlist[[7]][i,2],2])
+        peaklist[i,4] <- sum(MSlist[[4]][[2]][MSlist[[7]][i,1]:MSlist[[7]][i,2],2])
+        peaklist[i,5] <- (MSlist[[4]][[2]][MSlist[[7]][i,1]:MSlist[[7]][i,2],3][MSlist[[4]][[2]][MSlist[[7]][i,1]:MSlist[[7]][i,2],2]==max(MSlist[[4]][[2]][MSlist[[7]][i,1]:MSlist[[7]][i,2],2])[1]])[1]
+		peaklist[i,6] <- min(MSlist[[4]][[2]][MSlist[[7]][i,1]:MSlist[[7]][i,2],3])
+        peaklist[i,7] <- max(MSlist[[4]][[2]][MSlist[[7]][i,1]:MSlist[[7]][i,2],3])        
+        peaklist[i,8:10] <- MSlist[[4]][[2]][MSlist[[7]][i,1],5:7]
+        peaklist[i,11] <- 0;
       }
-      peaklist<-peaklist[order(peaklist[,3],decreasing=TRUE),];
-      MSlist[[8]]<-peaklist;
-	  MSlist[[3]][[6]]<-length(peaklist[,1])
+      peaklist <- peaklist[order(peaklist[,3], decreasing = TRUE),];
+      MSlist[[8]] <- peaklist;
+	  MSlist[[3]][[6]] <- length(peaklist[,1])
     }else{
 	  MSlist[[3]][[6]]<-"No peaks picked"
 	}
-    if(progbar==TRUE){close(prog);}
+    if(progbar == TRUE){close(prog);}
     ############################################################################
-    MSlist[[1]][[5]]<-TRUE;
-    MSlist[[3]][[7]]<-length(MSlist[[4]][[2]][MSlist[[4]][[2]][,7]!=0,2])  
+    MSlist[[1]][[5]] <- TRUE;
+    MSlist[[3]][[7]] <- length(MSlist[[4]][[2]][MSlist[[4]][[2]][,7]!=0,2])  
     ############################################################################
-	MSlist[[2]][[2]][22]<-as.character(minpeak)
-	MSlist[[2]][[2]][23]<-as.character(drtsmall) 	
-	MSlist[[2]][[2]][24]<-as.character(drtfill) 	
-	MSlist[[2]][[2]][25]<-as.character(drttotal) 	
-	MSlist[[2]][[2]][26]<-as.character(recurs) 	
-	MSlist[[2]][[2]][27]<-as.character(weight) 	
-	MSlist[[2]][[2]][28]<-as.character(SB) 	
-	MSlist[[2]][[2]][29]<-as.character(SN) 	
-	MSlist[[2]][[2]][30]<-as.character(minint) 	
-	MSlist[[2]][[2]][31]<-as.character(maxint) 	
-	MSlist[[2]][[2]][32]<-as.character(ended) 	
-	MSlist[[2]][[2]][33]<-as.character(from) 	
-	MSlist[[2]][[2]][34]<-as.character(to) 	
+	MSlist[[2]][[2]][22] <- as.character(minpeak)
+	MSlist[[2]][[2]][23] <- as.character(drtsmall) 	
+	MSlist[[2]][[2]][24] <- as.character(drtfill) 	
+	MSlist[[2]][[2]][25] <- as.character(drttotal) 	
+	MSlist[[2]][[2]][26] <- as.character(recurs) 	
+	MSlist[[2]][[2]][27] <- as.character(weight) 	
+	MSlist[[2]][[2]][28] <- as.character(SB) 	
+	MSlist[[2]][[2]][29] <- as.character(SN) 	
+	MSlist[[2]][[2]][30] <- as.character(minint) 	
+	MSlist[[2]][[2]][31] <- as.character(maxint) 	
+	MSlist[[2]][[2]][32] <- as.character(ended) 	
+	MSlist[[2]][[2]][33] <- as.character(from) 	
+	MSlist[[2]][[2]][34] <- as.character(to) 	
     ############################################################################
     return(MSlist);
 
