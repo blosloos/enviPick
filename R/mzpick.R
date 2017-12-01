@@ -11,7 +11,7 @@ function(           MSlist,
                     minint=1E4,
                     maxint=1E7,
                     ended=2,
-					get_mass = wmean,
+					get_mass = "wmean",
                     progbar=FALSE,
                     from=FALSE,
                     to=FALSE
