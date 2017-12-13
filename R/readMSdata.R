@@ -1,7 +1,7 @@
 readMSdata <-
 function( 
 			filepath.mzXML,
-			MSlevel=c(1),
+			MSlevel=c("1"),
 			progbar=FALSE,
 			minRT=FALSE,
 			maxRT=FALSE,
@@ -25,7 +25,7 @@ function(
 			max_mz<-maxmz
 		}
 		if(!is.logical(ion_mode)){
-			if((ion_mode!="positive")&(ion_mode!="negative")){
+			if((ion_mode!="positive")&(ion_mode!="negative")&(ion_mode!="any")){
 				stop("Wrong polarity argument")
 			}
 		}

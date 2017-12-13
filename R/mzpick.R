@@ -47,18 +47,18 @@ function(           MSlist,
     peaknumb<-c(0);
     MSlist[[4]][[2]][,4]<-seq(1,length(MSlist[[4]][[2]][,4]),1); 
     for(i in m:n){    
-		if(MSlist[[6]][i,3]>=minpeak){
+		if(MSlist[[6]][i,3] >= minpeak){
 		  if(progbar==TRUE){setWinProgressBar(prog, i, title = "EIC  peak detection", label = NULL);}
 		  # same RT, interpolate ###################################################
 		  out1 <- .Call("gapfill",
 			as.numeric(MSlist[[4]][[2]][MSlist[[6]][i,1]:MSlist[[6]][i,2],3]),
 			as.numeric(MSlist[[4]][[2]][MSlist[[6]][i,1]:MSlist[[6]][i,2],2]),
-			as.integer(order(MSlist[[4]][[2]][MSlist[[6]][i,1]:MSlist[[6]][i,2],3],decreasing=FALSE)),
+			as.integer(order(MSlist[[4]][[2]][MSlist[[6]][i,1]:MSlist[[6]][i,2],3], decreasing = FALSE)),
 			as.numeric(MSlist[[4]][[2]][MSlist[[6]][i,1]:MSlist[[6]][i,2],1]),
 			as.numeric(MSlist[[4]][[2]][MSlist[[6]][i,1]:MSlist[[6]][i,2],4]),
 			as.numeric(MSlist[[4]][[1]]),
 			as.numeric(drtfill),
-			PACKAGE="enviPick"
+			PACKAGE = "enviPick"
 			)
 		  out1<-matrix(out1,ncol=10);
 		  colnames(out1)<-c("m/z","intens","RT","index","intens_filt","1pick","pickcrit","baseline","intens_corr","2pick");                       
@@ -78,28 +78,28 @@ function(           MSlist,
 			as.numeric(maxint),   # maximum intensity threshold
 			as.integer(ended),
 			as.integer(2),
-			PACKAGE="enviPick"
+			PACKAGE = "enviPick"
 		  )     
-		  out2<-matrix(out2,ncol=10);
+		  out2 <- matrix(out2, ncol = 10);
 		  colnames(out2)<-c("m/z","intens","RT","index","intens_filt","1pick","pickcrit","baseline","intens_corr","2pick");
 		  # assign final entries ####################################################
 		  if(!all(out2[,10]==0)){      
-			peaknumb<-peaknumb+max(out2[,10]);
-			out2[,10]<-out2[,10]+startat;         
+			peaknumb <- peaknumb + max(out2[,10]);
+			out2[,10] <- out2[,10] + startat;         
 			for(k in 1:length(out2[,10])){
-			  if(out2[k,10]!=startat){
-				MSlist[[4]][[2]][out2[k,4],7]<-out2[k,10]
-			  }
+				if(out2[k, 10] != startat){
+					MSlist[[4]][[2]][out2[k,4],7] <- out2[k,10]
+				}
 			}        
-			startat<-c(max(out2[,10]));
-			MSlist[[4]][[2]][MSlist[[6]][i,1]:MSlist[[6]][i,2],]<-
-			  MSlist[[4]][[2]][MSlist[[6]][i,1]:MSlist[[6]][i,2],][order(
-				MSlist[[4]][[2]][MSlist[[6]][i,1]:MSlist[[6]][i,2],7],decreasing=FALSE),];   
+			startat <- c(max(out2[,10]));
+			MSlist[[4]][[2]][MSlist[[6]][i,1]:MSlist[[6]][i,2],] <-
+				MSlist[[4]][[2]][MSlist[[6]][i,1]:MSlist[[6]][i,2],][order(
+					MSlist[[4]][[2]][MSlist[[6]][i,1]:MSlist[[6]][i,2],7], decreasing = FALSE),];   
 		  }
 		}
     }              
     ############################################################################
-	maxit<-max(MSlist[[4]][[2]][,7]);
+	maxit <- max(MSlist[[4]][[2]][,7]);
     # generate peak ID table ###################################################
     if(maxit>0){
 		if(progbar==TRUE){setWinProgressBar(prog, i, title = "Generate index", label = NULL);}
@@ -112,14 +112,14 @@ function(           MSlist,
 			PACKAGE="enviPick"
 		)
 		if(any(index[,2]!=0)){
-			index<-index[index[,2]!=0,,drop=FALSE];
-			partID<-.Call("partID",
+			index <- index[index[,2] != 0,,drop=FALSE];
+			partID <- .Call("partID",
 				as.integer(index),
 				as.integer(length(MSlist[[4]][[2]][,7])),
-				PACKAGE="enviPick"  
+				PACKAGE = "enviPick"  
 			)
-			MSlist[[4]][[2]][,7]<-partID
-			colnames(index)<-c("start_ID","end_ID","number_peaks");
+			MSlist[[4]][[2]][,7] <- partID
+			colnames(index) <- c("start_ID","end_ID","number_peaks");
 			MSlist[[7]]<-index
 		}
 	}
@@ -141,7 +141,7 @@ function(           MSlist,
         peaklist[i,8:10]<-MSlist[[4]][[2]][MSlist[[7]][i,1],5:7]
         peaklist[i,11]<-0;
       }
-      peaklist<-peaklist[order(peaklist[,3],decreasing=TRUE),];
+      peaklist<-peaklist[order(peaklist[,3],decreasing=TRUE),drop=FALSE];
       MSlist[[8]]<-peaklist;
 	  MSlist[[3]][[6]]<-length(peaklist[,1])
     }else{
