@@ -25,7 +25,7 @@ function(
 			max_mz<-maxmz
 		}
 		if(!is.logical(ion_mode)){
-			if((ion_mode!="positive")&(ion_mode!="negative")&(ion_mode!="any")){
+			if((ion_mode!="positive") & (ion_mode!="negative") & (ion_mode!="any")){
 				stop("Wrong polarity argument")
 			}
 		}
@@ -86,41 +86,41 @@ function(
 		##########################################################################
       
 		##########################################################################
-		mz1<-readMzXmlFile(file.path(filepath.mzXML),removeMetaData = FALSE,verbose = FALSE)
+		mz1<-readMzXmlFile(file.path(filepath.mzXML), removeMetaData = FALSE,verbose = FALSE)
 		peaknumb<-0
 		RT<-c()
 		done_cen<-FALSE
 		for(i in 1:length(mz1)){
 			if((any(mz1[[i]]$metaData$msLevel==MSlevel)) & (mz1[[i]]$metaData$peaksCount>0)){
-				if((minRT!=FALSE)&(mz1[[i]]$metaData$retentionTime<minRT)) next
-				if((maxRT!=FALSE)&(mz1[[i]]$metaData$retentionTime>maxRT)) next
+				if((minRT!=FALSE) & (mz1[[i]]$metaData$retentionTime < minRT)) next
+				if((maxRT!=FALSE) & (mz1[[i]]$metaData$retentionTime > maxRT)) next
 				if(!is.logical(ion_mode)){
-					if((ion_mode=="positive")&(mz1[[i]]$metaData$polarity!="+")) next
-					if((ion_mode=="negative")&(mz1[[i]]$metaData$polarity!="-")) next
+					if((ion_mode == "positive") & (mz1[[i]]$metaData$polarity != "+")) next
+					if((ion_mode == "negative") & (mz1[[i]]$metaData$polarity != "-")) next
 				}
-				if(any(names(mz1[[i]]$metaData)=="centroided")){
-					if(mz1[[i]]$metaData$centroided!=1){
+				if(any(names(mz1[[i]]$metaData) == "centroided")){
+					if(mz1[[i]]$metaData$centroided != 1){
 						stop("\nYour .mzXML-file has not been centroided.\n")
 					}
 				}else{
 					if(!done_cen){
 						cat("\nYou have ensured your data is centroided ...\n");
-						done_cen<-TRUE
+						done_cen <- TRUE
 					}
 				}
-				RT<-c(RT,mz1[[i]]$metaData$retentionTime)	
-				peaknumb<-c(peaknumb + sum(mz1[[i]][[1]]$mass>=min_mz & mz1[[i]][[1]]$mass<=max_mz,na.rm=TRUE))
+				RT <- c(RT, mz1[[i]]$metaData$retentionTime)	
+				peaknumb <- c(peaknumb + sum(mz1[[i]][[1]]$mass >= min_mz & mz1[[i]][[1]]$mass <= max_mz, na.rm = TRUE))
 			}
 		}
-		if(peaknumb==0){
-			stop("\nWith this file & settings: no peaks available.\n")
+		if(peaknumb == 0){
+			stop("\nWith this file & settings: no peaks available. Maybe a wrong ionization mode is specified?\n")
 		}
-		scans<-list(0)
-		scans[[1]]<-RT      
-        getpeaks<-matrix(nrow=peaknumb,ncol=7,0)
-		from<-1;
-		if(progbar==TRUE){  
-			prog<-winProgressBar("Extract scans",min=0,max=length(mz1));
+		scans <- list(0)
+		scans[[1]] <- RT      
+        getpeaks <- matrix(nrow = peaknumb, ncol = 7, 0)
+		from <- 1;
+		if(progbar == TRUE){  
+			prog <- winProgressBar("Extract scans", min = 0, max = length(mz1));
             setWinProgressBar(prog, 0, title = "Extract scans", label = NULL);
 		}
 		for(i in 1:length(mz1)){
