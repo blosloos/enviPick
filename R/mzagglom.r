@@ -26,9 +26,9 @@ mzagglom<-function(   MSlist,
 	MSlist[[4]][[2]][,7]<-rep(0,length(MSlist[[4]][[2]][,4]));
 	##############################################################################
 	# partition! #################################################################
-	if(ppm){ppm2<-1}else{ppm2<-0};
-	MSlist[[4]][[2]]<-MSlist[[4]][[2]][order(MSlist[[4]][[2]][,1],decreasing=FALSE),]
-	if(progbar==TRUE){prog<-winProgressBar("Agglomerate...",min=0,max=3);
+	if(ppm){ppm2 <- 1}else{ppm2 <- 0};
+	MSlist[[4]][[2]] <- MSlist[[4]][[2]][order(MSlist[[4]][[2]][,1], decreasing = FALSE),]
+	if(progbar == TRUE){prog <- winProgressBar("Agglomerate...", min = 0, max = 3);
                       setWinProgressBar(prog, 0, title = "Agglomerate...", label = NULL);}
 	part <- .Call("agglom",
 			as.numeric(MSlist[[4]][[2]][,1]),
@@ -38,25 +38,25 @@ mzagglom<-function(   MSlist,
 			as.numeric(drtgap),
 			PACKAGE="enviPick" 
 		  )
-	if(progbar==TRUE){setWinProgressBar(prog, 1, title = "Agglomerate...", label = NULL)}
-	MSlist[[4]][[2]]<-MSlist[[4]][[2]][order(part,decreasing=FALSE),]
-	part<-part[order(part,decreasing=FALSE)]
-	maxit<-max(part)
+	if(progbar == TRUE){setWinProgressBar(prog, 1, title = "Agglomerate...", label = NULL)}
+	MSlist[[4]][[2]] <- MSlist[[4]][[2]][order(part, decreasing = FALSE),]
+	part <- part[order(part,decreasing=FALSE)]
+	maxit <- max(part)
 	index <- .Call("indexed",
 		as.integer(part),
 		as.numeric(MSlist[[4]][[2]][,2]),
 		as.integer(minpeak),
 		as.numeric(maxint),
 		as.integer(maxit),
-		PACKAGE="enviPick" 
+		PACKAGE = "enviPick" 
 	)
-	index<-index[index[,2]!=0,,drop=FALSE]
-	colnames(index)<-c("start_ID","end_ID","number_peaks")
-	MSlist[[5]]<-index
-	partID<-.Call("partID",
+	index<-index[index[,2] != 0,,drop = FALSE]
+	colnames(index) <- c("start_ID", "end_ID", "number_peaks")
+	MSlist[[5]] <- index
+	partID <- .Call("partID",
 		as.integer(index),
 		as.integer(length(MSlist[[4]][[2]][,5])),
-		PACKAGE="enviPick"  
+		PACKAGE = "enviPick"  
 	)
 	MSlist[[4]][[2]][,5]<-partID
 	if(progbar==TRUE){setWinProgressBar(prog, 2, title = "Agglomerate...", label = NULL)}

@@ -1,14 +1,14 @@
 readMSdata <-
 function( 
-			filepath.mzXML,
-			MSlevel=c("1"),
-			progbar=FALSE,
-			minRT=FALSE,
-			maxRT=FALSE,
-			minmz=FALSE,
-			maxmz=FALSE,
-			ion_mode=FALSE
-		){
+		filepath.mzXML,
+		MSlevel = c("1"),
+		progbar = FALSE,
+		minRT = FALSE,
+		maxRT = FALSE,
+		minmz = FALSE,
+		maxmz = FALSE,
+		ion_mode = FALSE
+	){
 	
 		##########################################################################
 		# checks #################################################################
@@ -86,7 +86,7 @@ function(
 		##########################################################################
       
 		##########################################################################
-		mz1<-readMzXmlFile(file.path(filepath.mzXML), removeMetaData = FALSE,verbose = FALSE)
+		mz1 <- readMzXmlFile(file.path(filepath.mzXML), removeMetaData = FALSE,verbose = FALSE)
 		peaknumb<-0
 		RT<-c()
 		done_cen<-FALSE
