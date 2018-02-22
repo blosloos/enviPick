@@ -790,7 +790,7 @@ extern "C"{
 			/* *************************************************************** */
 			/* merge isobaric mass cluster *************************************/
 
-            /* (a) set mean ****************************************************/
+            /* (a) set mean mass ***********************************************/
             for(n = 0; n < clustnumb; n++){
                 clus[(5 * leng) + (n)] = (clus[(5 * leng) + (n)] / clus[(4 * leng) + (n)]);
             }
@@ -814,7 +814,7 @@ extern "C"{
                             }
                         }
                     }else{
-                        break;
+                        break; // breaks k - different RTs
                     }
                 }
             }
@@ -869,66 +869,70 @@ extern "C"{
             }
 			
             /* (d) merge cluster ***********************************************/
-            int mergesize=clusterone.size(), stay, gone;
+            int mergesize = clusterone.size(), stay, gone;
             std::vector<int> clusterase;
-            if(mergesize>0){
-                while(mergesize>0){
-                    /* find cluster pair closest in mean mass difference */
-                    delmz=clusterdiff[0];
-                    m=0;
-					if(mergesize>1){
-                        for(k=1;k<mergesize;k++){
-                            if(clusterdiff[k]<delmz){
-                                m=k;
-                                delmz=clusterdiff[k];
+            if(mergesize > 0){
+                while(mergesize > 0){
+                    
+					/* find cluster pair closest in mean mass difference */
+                    delmz = clusterdiff[0];
+                    m = 0;
+					if(mergesize > 1){
+                        for(k = 1; k < mergesize; k++){
+                            if(clusterdiff[k] < delmz){
+                                m = k;
+                                delmz = clusterdiff[k];
                             }
                         }
                   	}
-                    /* reassign measurements */
-					for(n=0;n<leng;n++){
-                        if(clus[(9*leng)+n]==clustertwo[m]){
-                            clus[(9*leng)+n]=clusterone[m];
+                    
+					/* reassign cluster IDs of centroids */
+					for(n = 0; n < leng; n++){
+                        if(clus[(9 * leng) + n] == clustertwo[m]){
+                            clus[(9 * leng) + n] = clusterone[m];
                         }
                     }
+					
 					/* update cluster entries */
-                    clus[(4*leng)+(clusterone[m]-1)]=(clus[(4*leng)+(clusterone[m]-1)]+clus[(4*leng)+(clustertwo[m]-1)]); /* number of measurements */
-                    clus[(6*leng)+(clustertwo[m]-1)]=clusterone[m]; /* cluster ID */
-                    clus[(7*leng)+(clustertwo[m]-1)]=1;            /* merged? */
-                    /* delete that pair & all links to second (=merged) cluster & check blacklist  */
-                    gone=clustertwo[m];
-                    stay=clusterone[m];
-                    mergesize=clusterone.size();
-                    n=0;
-                    while(n<mergesize){ /* remove merges */
-                        if( (clusterone[n]==gone) || (clustertwo[n]==gone) ){
-                            clusterone.erase(clusterone.begin()+n);
-                            clustertwo.erase(clustertwo.begin()+n);
-                            clusterdiff.erase(clusterdiff.begin()+n);
-                            mergesize=clusterone.size();
+                    clus[(4 * leng) + (clusterone[m] - 1)] = (clus[(4 * leng) + (clusterone[m] - 1)] + clus[(4 * leng) + (clustertwo[m] - 1)]); /* number of measurements */
+					clus[(6 * leng) + (clustertwo[m] - 1)] = clusterone[m]; /* cluster ID */
+                    clus[(7 * leng) + (clustertwo[m] - 1)] = 1;            /* merged? */
+                   
+					/* delete that pair & all links to second (=merged) cluster & check blacklist  */
+					stay = clusterone[m];					
+					gone = clustertwo[m];
+                    mergesize = clusterone.size();
+                    n = 0;
+                    while(n < mergesize){ /* remove merges */
+                        if( (clusterone[n] == gone) || (clustertwo[n] == gone) ){
+                            clusterone.erase(clusterone.begin() + n);
+                            clustertwo.erase(clustertwo.begin() + n);
+                            clusterdiff.erase(clusterdiff.begin() + n);
+                            mergesize = clusterone.size();
                         }else{
                             n++;
                         }
                     }
-                    if((blacksize>0) && (mergesize>0)){
+                    if((blacksize > 0) && (mergesize > 0)){
                         clusterase.clear(); /* check blacklist-entries */
-                        for(k=0;k<blacksize;k++){
-                            if(blackone[k]==gone){
+                        for(k = 0; k < blacksize; k++){
+                            if(blackone[k] == gone){
                                 clusterase.push_back(blacktwo[k]);
                             }
-                            if(blacktwo[k]==gone){
+                            if(blacktwo[k] == gone){
                                 clusterase.push_back(blackone[k]);
                             }
                         }
-                        if(clusterase.size()>0){ /* remove indirect blacklisted links */
-                            for(m=0;(unsigned)m<clusterase.size();m++){
-                                mergesize=clusterone.size();
-                                n=0;
-                                while(n<mergesize){
-                                    if( (clustertwo[n]==stay) || (clusterone[n]==clusterase[m])){
-                                        clusterone.erase(clusterone.begin()+n);
-                                        clustertwo.erase(clustertwo.begin()+n);
-                                        clusterdiff.erase(clusterdiff.begin()+n);
-                                        mergesize=clusterone.size();
+                        if(clusterase.size() > 0){ /* remove indirect blacklisted links */
+                            for(m = 0; (unsigned) m < clusterase.size(); m++){
+                                mergesize = clusterone.size();
+                                n = 0;
+                                while(n < mergesize){
+                                    if( (clustertwo[n] == stay) || (clusterone[n] == clusterase[m])){
+                                        clusterone.erase(clusterone.begin() + n);
+                                        clustertwo.erase(clustertwo.begin() + n);
+                                        clusterdiff.erase(clusterdiff.begin() + n);
+                                        mergesize = clusterone.size();
                                     }else{
                                         n++;
                                     }
@@ -986,7 +990,7 @@ extern "C"{
 			int ppm3 = INTEGER_VALUE(ppm2);
 			double drtdens_1 = NUMERIC_VALUE(drtdens1);
 			double drtdens_2 = NUMERIC_VALUE(drtdens2);
-			//int merged3 = INTEGER_VALUE(merged2);
+			int merged3 = INTEGER_VALUE(merged2);
 			int leng = LENGTH(RT1);
 			int m, n, i, k = 0, clustnumb, maxat = 0, maxit = 0;
 			double delmz;
@@ -1158,7 +1162,7 @@ extern "C"{
 				/* (e) fits exactly to one cluster *************************************/
 				if(maxat == 1){
 					clus[(9 * leng) + (*(ordint + n) - 1)] = (at[0] + 1);
-					if(ppm3 == 1){delmz = ((dmzdens2**(mass + (*(ordint + n) - 1))) / 1e6);}else{delmz = dmzdens2;}
+					if(ppm3 == 1){delmz = ((dmzdens2 * *(mass + (*(ordint + n) - 1))) / 1e6);}else{delmz = dmzdens2;}
 					/* shrink lower & upper mass bounds */
 					if(clus[(0 * leng) + (at[0])] < (*(mass + (*(ordint + n) - 1)) - (2 * delmz))){clus[(0 * leng) + (at[0])] = (*(mass + (*(ordint + n) - 1)) - (2 * delmz));}
 					if(clus[(1 * leng) + (at[0])] > (*(mass + (*(ordint + n) - 1)) + (2 * delmz))){clus[(1 * leng) + (at[0])] = (*(mass + (*(ordint + n) - 1)) + (2 * delmz));}
@@ -1203,11 +1207,171 @@ extern "C"{
 				}
 			}
 			
-			//if((merged3 != 1) || (clustnumb == 1)){
+			if((merged3 != 1) || (clustnumb == 1)){
 				delete[] at;
 				UNPROTECT(12);
 				return(clusters);		   
-			//}
+			}
+ 
+		   
+			/* *************************************************************** */
+			/* merge isobaric mass cluster *************************************/
+
+            /* (a) set mean mass ***********************************************/
+            for(n = 0; n < clustnumb; n++){
+                clus[(5 * leng) + (n)] = (clus[(5 * leng) + (n)] / clus[(4 * leng) + (n)]);
+            }
+			
+            /* (b) define exclusion-list of cluster with same RT ***************/
+            std::vector<int> blackone;
+            std::vector<int> blacktwo;
+            for(n = 1; n < leng; n++){ // over centroids alias ordret positions
+                for(k = (n - 1); k >= 0; k--){
+                    if(
+						(*(ret1 + (*(ordret + k) - 1)) == *(ret1 + (*(ordret + n) - 1))) &&
+						(*(ret2 + (*(ordret + k) - 1)) == *(ret2 + (*(ordret + n) - 1)))
+					){ // identical RT
+                        if( /* precheck: confine to overlapping mass + tolerance */
+                            (clus[(0 * leng) + (int(clus[(9 * leng) + (*(ordret + n) - 1)]) - 1)] < clus[(1 * leng) + (int(clus[(9 * leng) + (*(ordret + k) - 1)]) - 1)]) &&
+                            (clus[(1 * leng) + (int(clus[(9 * leng) + (*(ordret + n) - 1)]) - 1)] > clus[(0 * leng) + (int(clus[(9 * leng) + (*(ordret + k) - 1)]) - 1)])
+                        ){   /* smallest cluster index always first */
+                            if((clus[(9 * leng) + (*(ordret + k) - 1)]) < (clus[(9 * leng) + (*(ordret + n) - 1)])){
+                                blackone.push_back(int(clus[(9 * leng) + (*(ordret + k) - 1)]));
+                                blacktwo.push_back(int(clus[(9 * leng) + (*(ordret + n) - 1)]));
+                            }else{
+                                blackone.push_back(int(clus[(9 * leng) + (*(ordret + n) - 1)]));
+                                blacktwo.push_back(int(clus[(9 * leng) + (*(ordret + k) - 1)]));
+                            }
+                        }
+                    }else{
+                        break; // breaks k - different RTs
+                    }
+                }
+            }
+            int blacksize = blackone.size(); // to check whether any exclusions were found at all
+			
+            /* (c) find mergeable clusters: indices & mass differences *********/
+            /*     cross-check for overlaps in RT between cluster **************/
+            std::vector<int> clusterone;		// store index of mergeable cluster 1
+            std::vector<int> clustertwo;		// store index of mergeable cluster 2
+            std::vector<double> clusterdiff; 	// store cluster difference in mean mass
+            int doit;
+            for(n = 0; n < (clustnumb - 1); n++){
+                for(m = (n + 1); m < clustnumb; m++){
+                    if( /* precheck: confine to overlapping mass + tolerance ... */
+                        (clus[(0 * leng) + (n)] < clus[(1 * leng) + (m)]) &&
+                        (clus[(1*leng) + (n)] > clus[(0 * leng) + (m)])
+                    ){ 
+                        if( /* ... and check for overlapping exact centroid masses */
+							(clus[(0 * leng) + (n)] <= clus[(11 * leng) + (m)]) &&
+							(clus[(1 * leng) + (n)] >= clus[(12 * leng) + (m)]) &&
+							(clus[(0 * leng) + (m)] <= clus[(11 * leng) + (n)]) &&
+							(clus[(1 * leng) + (m)] >= clus[(12 * leng) + (n)])
+                        ){
+                            if(blacksize == 0){
+                                clusterone.push_back(n + 1);
+                                clustertwo.push_back(m + 1);
+                                clusterdiff.push_back(fabs(clus[(5 * leng) + (n)] - clus[(5 * leng) + (m)]));
+                            }else{
+                                doit = 0;
+                                for(k = 0; k < blacksize; k++){
+                                    if(blackone[k] == (n + 1)){
+                                        if(blacktwo[k] == (m + 1)){
+                                            doit = 1;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if(doit == 0){
+                                    clusterone.push_back(n + 1);
+                                    clustertwo.push_back(m + 1);
+                                    clusterdiff.push_back(fabs(clus[(5 * leng) + (n)] - clus[(5 * leng) + (m)]));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+			
+            /* (d) merge cluster ***********************************************/
+            int mergesize = clusterone.size(), stay, gone;
+			std::vector<int> clusterase;
+            if(mergesize > 0){
+                while(mergesize > 0){
+                    
+					/* find cluster pair closest in mean mass difference */
+                    delmz = clusterdiff[0];
+                    m = 0;
+					if(mergesize > 1){
+                        for(k = 1; k < mergesize; k++){
+                            if(clusterdiff[k] < delmz){
+                                m = k;
+                                delmz = clusterdiff[k];
+                            }
+                        }
+                  	}
+                    
+					/* reassign cluster IDs of centroids */
+					for(n = 0; n < leng; n++){
+                        if(clus[(9 * leng) + n] == clustertwo[m]){
+                            clus[(9 * leng) + n] = clusterone[m];
+                        }
+                    }
+					
+					/* update cluster entries */
+                    clus[(4 * leng) + (clusterone[m] - 1)] = (clus[(4 * leng) + (clusterone[m] - 1)] + clus[(4 * leng) + (clustertwo[m] - 1)]); /* number of measurements */
+					clus[(6 * leng) + (clustertwo[m] - 1)] = clusterone[m]; /* cluster ID */
+                    clus[(7 * leng) + (clustertwo[m] - 1)] = 1;            /* merged? */
+                   
+					/* delete that pair & all links to second (=merged) cluster & check blacklist  */
+					stay = clusterone[m];					
+					gone = clustertwo[m];
+                    mergesize = clusterone.size();
+                    n = 0;
+                    while(n < mergesize){ /* remove merged cluster */
+                        if( (clusterone[n] == gone) || (clustertwo[n] == gone) ){
+                            clusterone.erase(clusterone.begin() + n);
+                            clustertwo.erase(clustertwo.begin() + n);
+                            clusterdiff.erase(clusterdiff.begin() + n);
+                            mergesize = clusterone.size();
+                        }else{
+                            n++;
+                        }
+                    }
+                    if((blacksize > 0) && (mergesize > 0)){
+                        clusterase.clear(); /* check blacklist-entries */
+                        for(k = 0; k < blacksize; k++){
+                            if(blackone[k] == gone){
+                                clusterase.push_back(blacktwo[k]);
+                            }
+                            if(blacktwo[k] == gone){
+                                clusterase.push_back(blackone[k]);
+                            }
+                        }
+                        if(clusterase.size() > 0){ /* remove indirect blacklisted links */
+                            for(m = 0; m < (int) clusterase.size(); m++){
+                                mergesize = clusterone.size();
+                                n = 0;
+                                while(n < mergesize){
+                                    if( (clustertwo[n] == stay) || (clusterone[n] == clusterase[m])){
+                                        clusterone.erase(clusterone.begin() + n);
+                                        clustertwo.erase(clustertwo.begin() + n);
+                                        clusterdiff.erase(clusterdiff.begin() + n);
+                                        mergesize = clusterone.size();
+                                    }else{
+                                        n++;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+			
+			/* output ******************************************************/
+			delete[] at;
+			UNPROTECT(12);
+			return(clusters);
 		   
 		}
 
