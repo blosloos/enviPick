@@ -4,6 +4,7 @@ enviPick News
 CHANGES in version 1.6:
 
 	(1) readMSdata function: debug for empty scan readings
+	(2) 3D peak picking capabilities added
 
 CHANGES in version 1.5:
 
