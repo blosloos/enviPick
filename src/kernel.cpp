@@ -1427,136 +1427,106 @@ extern "C"{
       }
 
 
-      /************************************************************************/
-      /* gap filling, mean for same RT ****************************************/
-      /************************************************************************/
-       SEXP gapfill(  SEXP RT, /* must be sorted */
-                      SEXP intens,
-                      SEXP intensorder,
-                      SEXP mz,
-                      SEXP index,
-                      SEXP scans,
-                      SEXP drtsmall
-                      ){
+		/************************************************************************/
+		/* gap filling, mean for same RT ****************************************/
+		/************************************************************************/
+		SEXP gapfill(  	SEXP RT,
+						SEXP intens,
+						SEXP RTorder,  	/* increasing RT order */
+						SEXP mz,
+						SEXP index,		/* some centroid index */
+						SEXP scans,		/* RTs, order increasing */
+						SEXP drtsmall
+					){
 
-           PROTECT(RT = AS_NUMERIC(RT));
-           PROTECT(intens = AS_NUMERIC(intens));
-           PROTECT(intensorder = AS_INTEGER(intensorder));
-           PROTECT(mz = AS_NUMERIC(mz));
-           PROTECT(index = AS_NUMERIC(index));
-           PROTECT(scans = AS_NUMERIC(scans));
-           PROTECT(drtsmall = AS_NUMERIC(drtsmall));
+			PROTECT(RT = AS_NUMERIC(RT));
+			PROTECT(intens = AS_NUMERIC(intens));
+			PROTECT(RTorder = AS_INTEGER(RTorder));
+			PROTECT(mz = AS_NUMERIC(mz));
+			PROTECT(index = AS_NUMERIC(index));
+			PROTECT(scans = AS_NUMERIC(scans));
+			PROTECT(drtsmall = AS_NUMERIC(drtsmall));
 
-           double drt = NUMERIC_VALUE(drtsmall);
-           int leng2 = LENGTH(RT);
-           int leng3 = LENGTH(scans);
+			int leng2 = LENGTH(RT);
+			int leng3 = LENGTH(scans);
+			int n, m, l, k;
+			double drt = NUMERIC_VALUE(drtsmall);
+			double *ret, *inte, *mass, *scanned, *ind;
+			ret = NUMERIC_POINTER(RT);
+			inte = NUMERIC_POINTER(intens);
+			mass = NUMERIC_POINTER(mz);
+			scanned = NUMERIC_POINTER(scans);
+			ind = NUMERIC_POINTER(index);
+			int *ordret;
+			ordret = INTEGER_POINTER(RTorder);
 
-           int n,m,l,p,k;
-           double meanint;
+			SEXP ans;
+			PROTECT(ans = allocMatrix(REALSXP, leng3, 10));
+			double *rans;
+			rans = REAL(ans);
+			for(m = 0; m < leng3; m++){
+               rans[m] = 0; 							// mass
+               rans[m + (1 * leng3)] = 0; 				// intensity
+               rans[m + (2 * leng3)] = *(scanned + m); 	// RT
+               rans[m + (3 * leng3)] = 0; 				// index
+               rans[m + (4 * leng3)] = 0; 				// Filter
+               rans[m + (5 * leng3)] = 0; 				// 1st peak-pick
+               rans[m + (6 * leng3)] = 0; 				// with peak criteria
+               rans[m + (7 * leng3)] = 0; 				// baseline #1
+               rans[m + (8 * leng3)] = 0; 				// baseline #2
+               rans[m + (9 * leng3)] = 0; 				// 2nd peak-pick
+			}
 
-           double *ret, *inte, *mass, *scanned, *ind;
-           ret = NUMERIC_POINTER(RT);
-           inte = NUMERIC_POINTER(intens);
-           mass = NUMERIC_POINTER(mz);
-           scanned = NUMERIC_POINTER(scans);
-           ind = NUMERIC_POINTER(index);
-           int *ordret;
-           ordret = INTEGER_POINTER(intensorder);
-
-           SEXP ans;
-           PROTECT(ans = allocMatrix(REALSXP, leng3, 10));
-           double *rans;
-           rans = REAL(ans);
-           for(m=0;m<leng3;m++){
-               rans[m]=0; /* mass */
-               rans[m+(1*leng3)]=0; /* intensity */
-               rans[m+(2*leng3)]=*(scanned+m); /* RT */
-               rans[m+(3*leng3)]=0; /* index */
-               rans[m+(4*leng3)]=0; /* Filter */
-               rans[m+(5*leng3)]=0; /* 1st peak-pick */
-               rans[m+(6*leng3)]=0; /* with peak criteria */
-               rans[m+(7*leng3)]=0; /* baseline #1 */
-               rans[m+(8*leng3)]=0; /* baseline #2*/
-               rans[m+(9*leng3)]=0; /* 2nd peak-pick */
-           }
-
-           int *traced;
-           traced = new int[leng3];
-           for(m=0;m<leng3;m++){
-               traced[m]=0;
-           }
-           /* for identical RT, fill with intensity-closest *******************/
-           l=0;
-           p=0;
-           for(n=0;n<leng2;n++){
-               for(m=l;m<leng3;m++){
-                   if(*(ret+(*(ordret+n)-1))==rans[m+(2*leng3)]){
-                       if(rans[m+(1*leng3)]!=0){
-                           traced[m]=traced[m]+1;
-                           p=1;
-                       }
-                       rans[m]=*(mass+(*(ordret+n)-1));
-                       rans[m+(1*leng3)]=*(inte+(*(ordret+n)-1));
-                       rans[m+(3*leng3)]=*(ind+(*(ordret+n)-1));
-                       l=m;
-                       break;
-                   };
-               };
-           };
-           if(p!=0){
-               for(m=0;m<leng3;m++){
-                   if(traced[m]!=0){
-                       l=0;
-                       meanint=0;
-                       for(n=(m-2);n<=(m+2);n++){
-                           if((n>=0)&(n<leng3)){
-                               if((traced[n]==0)&(rans[n+(1*leng3)]!=0)){
-                                   meanint=meanint+rans[n+(1*leng3)];
-                                   l++;
-                               }
-                           }
-                       }
-                       if(l!=0){
-                           meanint=meanint/l;
-                           for(k=0;k<leng2;k++){
-                               if(*(ret+k)==rans[m+(2*leng3)]){
-                                   if((fabs(*(inte+k)-meanint))<(fabs(rans[m+(1*leng3)]-meanint))){
-                                       rans[m]=*(mass+k);
-                                       rans[m+(1*leng3)]=*(inte+k);
-                                       rans[m+(3*leng3)]=*(ind+k);
-                                   }
-                               }
-                           }
-                       }
-                   }
-               }
-           }
+		   
+			/* for identical RT, fill with intensity-closest *******************/
+			l = 0; // start at first RT scan
+			for(n = 0; n < leng2; n++){
+				//for(m = 0; m < leng3; m++){
+				for(m = l; m < leng3; m++){
+					if(*(ret + (*(ordret + n) - 1)) == rans[m + (2 * leng3)]){
+						if(rans[m + (1 * leng3)] == 0){ // no entry yet
+							rans[m] = *(mass + (*(ordret + n) - 1));
+							rans[m + (1 * leng3)] = *(inte + (*(ordret + n) - 1));
+							rans[m + (3 * leng3)] = *(ind + (*(ordret + n) - 1));
+						}else{				
+							if( (rans[m + (1 * leng3)]) < *(inte + (*(ordret + n) - 1))){ // only fill in if intensity is higher
+								rans[m] = *(mass + (*(ordret + n) - 1));
+								rans[m + (1 * leng3)] = *(inte + (*(ordret + n) - 1));
+								rans[m + (3 * leng3)] = *(ind + (*(ordret + n) - 1));					    
+							}
+						}
+						l = m;
+						break;
+					};
+				};
+			};
+		    
            /* gap-filling - interpolation *************************************/
-           k=0;
-           for(m=k;m<(leng3-2);m++){
-               if(rans[m]!=0){
-                   for(n=(m+1);n<leng3;n++){
-                       if(rans[n]!=0){
+           k = 0;
+           for(m = k; m < (leng3 - 2); m++){
+               if(rans[m] != 0){
+                   for(n = (m + 1); n < leng3; n++){
+                       if(rans[n] != 0){
                            break;
                        }
                    }
-                   if((n-m)>1){ /* at least one measurement in between */
-                       if(fabs(rans[n+(2*leng3)]-rans[m+(2*leng3)])<=drt){
-                           for(l=(m+1);l<n;l++){
-                               rans[l+(1*leng3)]=rans[m+(1*leng3)]+(
-                                   ((rans[n+(1*leng3)]-rans[m+(1*leng3)]))/
-                                   (fabs(rans[n+(2*leng3)]-rans[m+(2*leng3)]))*
-                                   (fabs(rans[l+(2*leng3)]-rans[m+(2*leng3)]))
+                   if((n - m) > 1){ /* at least one measurement in between */
+                       if(fabs(rans[n + (2 * leng3)] - rans[m + (2 * leng3)]) <= drt){
+                           for(l = (m + 1); l < n; l++){
+                               rans[l + (1 * leng3)] = rans[m + (1 * leng3)] + (
+                                   ((rans[n + (1 * leng3)] - rans[m + (1 * leng3)])) /
+                                   (fabs(rans[n + (2 * leng3)] - rans[m + (2 * leng3)])) *
+                                   (fabs(rans[l + (2 * leng3)] - rans[m + (2 * leng3)]))
                                );
                            }
                        }
-                       k=n;
+                       k = n;
                    }else{
-                       k=n;
+                       k = n;
                    }
                }
            }
-           delete[] traced;
+
            UNPROTECT(8);
            return ans;
       }
