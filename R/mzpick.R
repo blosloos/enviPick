@@ -88,7 +88,7 @@ function(           MSlist,
 		  if(!all(out2[,10]==0)){      
 			peaknumb <- peaknumb + max(out2[,10]);
 			out2[,10] <- out2[,10] + startat;         
-			for(k in 1:length(out2[,10])){ # very unelegant approach to remove gap-filling!
+			for(k in 1:length(out2[,10])){ # very unelegant approach to remove gap-filling -> revise!
 				if(out2[k, 10] != startat){
 					MSlist[[4]][[2]][out2[k,4],7] <- out2[k,10]
 				}

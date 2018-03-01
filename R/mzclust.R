@@ -33,36 +33,36 @@ function(           MSlist,
     MSlist[[4]][[2]][,7]<-rep(0,length(MSlist[[4]][[2]][,4]));
     ############################################################################
     # cluster ################################################################
-    if(progbar==TRUE){  prog<-winProgressBar("EIC  clustering",min=m,max=n);
+    if(progbar==TRUE){  prog <- winProgressBar("EIC  clustering", min = m, max = n);
                         setWinProgressBar(prog, 0, title = "EIC  clustering", label = NULL);}    
     startat<-c(0);    
     for(k in m:n){ 
-      if(progbar==TRUE){setWinProgressBar(prog, k, title = paste("EIC  clustering: ID",k," @",(MSlist[[5]][k,2]-MSlist[[5]][k,1]+1)," measurements",sep=""), label = NULL)}
-      if((MSlist[[5]][k,2]-MSlist[[5]][k,1]+1)>1){      
+      if(progbar==TRUE){setWinProgressBar(prog, k, title = paste0("EIC  clustering: ID", k, " @", (MSlist[[5]][k,2] - MSlist[[5]][k,1] + 1)," measurements"), label = NULL)}
+      if((MSlist[[5]][k,2] - MSlist[[5]][k,1] + 1) > 1){      
         clusters <- .Call("getEIC",
                           as.numeric(MSlist[[4]][[2]][MSlist[[5]][k,1]:MSlist[[5]][k,2],1]),       # mz
                           as.numeric(MSlist[[4]][[2]][MSlist[[5]][k,1]:MSlist[[5]][k,2],3]),       # RT
                           as.numeric(MSlist[[4]][[2]][MSlist[[5]][k,1]:MSlist[[5]][k,2],2]),       # intens
-                          as.integer(order(MSlist[[4]][[2]][MSlist[[5]][k,1]:MSlist[[5]][k,2],2],decreasing=TRUE)),  # intensity order
-                          as.integer(order(MSlist[[4]][[2]][MSlist[[5]][k,1]:MSlist[[5]][k,2],3],decreasing=FALSE)),  # RT order                          
+                          as.integer(order(MSlist[[4]][[2]][MSlist[[5]][k,1]:MSlist[[5]][k,2],2], decreasing = TRUE)),  # intensity order
+                          as.integer(order(MSlist[[4]][[2]][MSlist[[5]][k,1]:MSlist[[5]][k,2],3], decreasing = FALSE)),  # RT order                          
                           as.numeric(dmzdens),
                           as.integer(ppm2),
                           as.numeric(drtdens),                                                   
                           as.integer(merged2),
-                          PACKAGE="enviPick"
+                          PACKAGE = "enviPick"
                         )
-        clusters[,10]<-clusters[,10]+startat;             
-        MSlist[[4]][[2]][(MSlist[[5]][k,1]):(MSlist[[5]][k,2]),6]<-clusters[,10]                       
-        MSlist[[4]][[2]][(MSlist[[5]][k,1]):(MSlist[[5]][k,2]),]<-(MSlist[[4]][[2]][(MSlist[[5]][k,1]):(MSlist[[5]][k,2]),][order(clusters[,10],decreasing=FALSE),])
-        startat<-c(max(clusters[,10]))
+        clusters[,10] <- clusters[,10] + startat;             
+        MSlist[[4]][[2]][(MSlist[[5]][k,1]):(MSlist[[5]][k,2]),6] <- clusters[,10]                       
+        MSlist[[4]][[2]][(MSlist[[5]][k,1]):(MSlist[[5]][k,2]),] <- (MSlist[[4]][[2]][(MSlist[[5]][k,1]):(MSlist[[5]][k,2]),][order(clusters[,10],decreasing=FALSE),])
+        startat <- c(max(clusters[,10]))
       }else{
-        MSlist[[4]][[2]][(MSlist[[5]][k,1]):(MSlist[[5]][k,2]),6]<-startat;   
-        startat<-startat+1;   
+        MSlist[[4]][[2]][(MSlist[[5]][k,1]):(MSlist[[5]][k,2]),6] <- startat;   
+        startat <- startat + 1;   
       }
     }    
-    if(progbar==TRUE){close(prog)};
-    maxit<-max(MSlist[[4]][[2]][,6]);
-    if(maxit>0){
+    if(progbar == TRUE){close(prog)};
+    maxit <- max(MSlist[[4]][[2]][,6]);
+    if(maxit > 0){
 		index <- .Call("indexed",
 			as.integer(MSlist[[4]][[2]][,6]),
 			as.numeric(MSlist[[4]][[2]][,2]),
@@ -71,18 +71,18 @@ function(           MSlist,
 			as.integer(maxit),
 			PACKAGE="enviPick"
 		)
-    }
-    if(any(index[,2]!=0)){
-		index<-index[index[,2]!=0,,drop=FALSE];
-		colnames(index)<-c("start_ID","end_ID","number_peaks");
-		MSlist[[6]]<-index;
-		partID<-.Call("partID",
-			as.integer(index),
-			as.integer(length(MSlist[[4]][[2]][,6])),
-			PACKAGE="enviPick"  
-		)
-		MSlist[[4]][[2]][,6]<-partID;
-    }
+		if(any(index[,2] != 0)){
+			index <- index[index[,2] != 0,, drop = FALSE];
+			colnames(index) <- c("start_ID", "end_ID", "number_peaks");
+			MSlist[[6]] <- index;
+			partID <- .Call("partID",
+				as.integer(index),
+				as.integer(length(MSlist[[4]][[2]][,6])),
+				PACKAGE = "enviPick"  
+			)
+			MSlist[[4]][[2]][,6] <- partID;
+		}
+	}
     ############################################################################
     MSlist[[1]][[3]]<-TRUE;
     MSlist[[1]][[4]]<-FALSE;
