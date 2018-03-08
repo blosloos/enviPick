@@ -1428,7 +1428,7 @@ extern "C"{
 
 
 		/************************************************************************/
-		/* gap filling, mean for same RT ****************************************/
+		/* gap filling, max for same RT *****************************************/
 		/************************************************************************/
 		SEXP gapfill(  	SEXP RT,
 						SEXP intens,
@@ -1958,6 +1958,108 @@ extern "C"{
            UNPROTECT(6);
            return ans2;
      }
+
+	
+	/******************************************************************************/
+	/* build groups from  relations ***********************************************/
+	/******************************************************************************/	
+	SEXP metagroup(
+                            SEXP proffrom, /* must be sorted */
+                            SEXP profto
+                            ){
+
+            PROTECT(proffrom = AS_INTEGER(proffrom));
+            PROTECT(profto = AS_INTEGER(profto));
+            int *proffrom2;
+            proffrom2 = INTEGER_POINTER(proffrom);
+            int *profto2;
+            profto2 = INTEGER_POINTER(profto);
+            int leng = LENGTH(proffrom);
+            int n, m, g, k, atwhat, atto_n, atfrom_n, stay;
+
+            SEXP group;
+            PROTECT(group = NEW_INTEGER(leng));
+            int *grouped;
+            grouped = INTEGER_POINTER(group);
+            for(n = 0; n < leng; n++){*(grouped+n) = 0;}
+            SEXP from;
+            PROTECT(from = NEW_INTEGER(leng));
+            int *atfrom;    /* stores indices */
+            atfrom = INTEGER_POINTER(from);
+            for(n = 0; n < leng; n++){*(atfrom + n) = 0;}
+            SEXP to = 0;        /* stores profile IDs */
+            PROTECT(to = NEW_INTEGER(leng));
+            int *atto;
+            atto = INTEGER_POINTER(to);
+            for(n = 0; n < leng; n++){*(atto+n) = 0;}
+
+            g = 1;
+            for(n = 0; n < leng; n++){
+                if(*(grouped+n) == 0){
+                    *(grouped+n) = g;
+                    /* initialize  */
+                    *(atto)=*(proffrom2+n); /* cause it could be there repeatedly */
+                    *(atto+1)=*(profto2+n);
+                    atto_n=2;
+                    stay=1;
+                    while(stay>0){
+                        /* to -> from */
+                        /* given profile IDs in to, search indices in from having these IDs */
+                        atfrom_n=0;
+                        atwhat=n;
+                        for(m=0;m<atto_n;m++){
+                           if(*(atto+m)>=*(proffrom2+atwhat)){
+                               for(k=atwhat;k<leng;k++){
+                                    if( *(proffrom2+k) > *(atto+m) ){
+                                        atwhat=k;
+                                        break;
+                                    }
+                                    if( *(proffrom2+k) == *(atto+m) ){
+                                        if(*(grouped+k)==0){
+                                            *(grouped+k)=g;
+                                            *(atfrom+atfrom_n)=k;
+                                            atfrom_n++;
+                                            atwhat=k;
+                                        }
+                                    }
+                                }
+                            }else{
+                               for(k=atwhat;k>n;k--){
+                                    if( *(proffrom2+k) < *(atto+m) ){
+                                        atwhat=k;
+                                        break;
+                                    }
+                                    if( *(proffrom2+k) == *(atto+m) ){
+                                        if(*(grouped+k)==0){
+                                            *(grouped+k)=g;
+                                            *(atfrom+atfrom_n)=k;
+                                            atfrom_n++;
+                                            atwhat=k;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        /* from -> to */
+                        /* write with indices in from profile IDs into to */
+                        atto_n=0;
+                        if(atfrom_n>0){
+                            for(k=0;k<atfrom_n;k++){
+                                *(atto+atto_n)=*(profto2+*(atfrom+k));
+                                atto_n++;
+                            }
+                        }else{
+                            stay=0;
+                        }
+                    }
+                    g++;
+                }
+            }
+
+            UNPROTECT(5);
+            return group;
+
+	}
 
 
 }
