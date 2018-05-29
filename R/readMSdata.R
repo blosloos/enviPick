@@ -86,7 +86,7 @@ function(
 		##########################################################################
       
 		##########################################################################
-		mz1 <- readMzXmlFile(file.path(filepath.mzXML), removeMetaData = FALSE,verbose = FALSE)
+		mz1 <- readMzXmlData::readMzXmlFile(file.path(filepath.mzXML), removeMetaData = FALSE,verbose = FALSE)
 		peaknumb<-0
 		RT<-c()
 		done_cen<-FALSE
