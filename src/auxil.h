@@ -204,78 +204,82 @@ inline void peakcrit1(
        double *often
        ){
 
-       int n,m,to,p,dont;
-       double maxint;
+       int n, m, to, p, dont;
+       double maxSB;
        int *traced1, *traced2, *traced3, *traced4, *peaked;
        traced1 = new int[int(often[0])];
        traced2 = new int[int(often[0])];
        traced3 = new int[int(often[0])];
        traced4 = new int[int(often[0])];
        peaked = new int[int(often[0])];
-       for(n=0;n<int(often[0]);n++){
-               traced1[n]=0;
-               traced2[n]=0;
-               traced3[n]=0;
-               traced4[n]=0;
-               peaked[n]=0;
+       for(n = 0; n < int(often[0]); n++){
+               traced1[n] = 0;
+               traced2[n] = 0;
+               traced3[n] = 0;
+               traced4[n] = 0;
+               peaked[n] = 0;
        };
 
        /* extract criteria from peaks *****************************************/
-       for(n=0;n<leng3;n++){
-                   if(rans[n+(5*leng3)]!=0){
-                       p=1;
-                       maxint=0;
-                       for(m=0;m<leng3;m++){
-                           if(rans[n+(5*leng3)]==rans[m+(5*leng3)]){
-                               if( (fabs(rans[m+(2*leng3)]-rans[n+(2*leng3)])<=drt2) && (m>n) ){
-                                   p++;
-                               }   /* based on the filtered data **************/
-                               if((rans[m+(4*leng3)]/rans[n+(4*leng3)])>maxint){
-                                   maxint=(rans[m+(4*leng3)]/rans[n+(4*leng3)]);
-                               }
+       for(n = 0; n < leng3; n++){
+                   if(rans[n + (5 * leng3)] != 0){ /* 1st pick */
+                       p = 1;
+                       maxSB = 0;
+                       for(m = 0; m < leng3; m++){
+                           if(rans[n + (5 * leng3)] == rans[m + (5 * leng3)]){ /* must be of same 1st pick */
+                                /* based on both n and m must be centroids, not interpolated data */ 
+								if((rans[n] != 0) && (rans[m] != 0)){
+									if( (fabs(rans[m + (2 * leng3)] - rans[n + (2 * leng3)]) <= drt2) && (m > n) ){
+									   p++;
+								   }   
+								}
+							    /* based on the filtered data **************/
+                                if((rans[m + (4 * leng3)] / rans[n + (4 * leng3)]) > maxSB){
+                                   maxSB = (rans[m + (4 * leng3)] / rans[n + (4 * leng3)]);
+                                }
                            }else{
-                               if(m>n){
+                               if(m > n){
                                    break;
                                }
                            }
                        }
-                       if(p>=minpeak2){
-                           traced1[int(rans[n+(5*leng3)]-1)]=1;
+                       if(p >= minpeak2){
+                           traced1[int(rans[n + (5 * leng3)] - 1)] = 1;
                        }
-                       if(maxint>=SB2){
-                           traced2[int(rans[n+(5*leng3)]-1)]=1;
+                       if(maxSB >= SB2){
+                           traced2[int(rans[n + (5 * leng3)] - 1)] = 1;
                        }
-                       if(rans[n+(4*leng3)]>=minint2){
-                           traced3[int(rans[n+(5*leng3)]-1)]=1;
+                       if(rans[n + (4 * leng3)] >= minint2){
+                           traced3[int(rans[n + (5 * leng3)] - 1)] = 1;
                        }
-                       if(rans[n+(4*leng3)]>=upint2){
-                           traced4[int(rans[n+(5*leng3)]-1)]=1;
+                       if(rans[n + (4 * leng3)] >= upint2){
+                           traced4[int(rans[n + (5 * leng3)] - 1)] = 1;
                        }
                    }
        }
        /* evaluate criteria - write peaks *************************************/
-       to=1;
-       dont=0;
-       for(n=0;n<int(often[0]);n++){
+       to = 1;
+       dont = 0;
+       for(n = 0; n < int(often[0]); n++){
                    if(
-                       ((traced1[n]==1)&&(traced2[n]==1)&&(traced3[n]==1)&&(dont<ended2)) ||
-                       ((traced4[n]==1)&&(dont<ended2))
+                       ((traced1[n] == 1) && (traced2[n] == 1) && (traced3[n] == 1) && (dont < ended2)) ||
+                       ((traced4[n] == 1) && (dont < ended2))
                    ){
-                       peaked[n]=to;
+                       peaked[n] = to;
                        to++;
                    }else{
-                     peaked[n]=0;
+                     peaked[n] = 0;
                      dont++;
                    }
        }
-       for(n=0;n<leng3;n++){
-           if(rans[n+(5*leng3)]!=0){
-               if(peaked[int(rans[n+(5*leng3)]-1)]!=0){
-                   rans[n+(6*leng3)]=peaked[int(rans[n+(5*leng3)]-1)];
+       for(n = 0; n < leng3; n++){
+           if(rans[n + (5 * leng3)] != 0){
+               if(peaked[int(rans[n + (5 * leng3)] - 1)] != 0){
+                   rans[n + (6 * leng3)] = peaked[int(rans[n + (5 * leng3)] - 1)];
                }
            }
        }
-       often[0]=to;
+       often[0] = to;
 
        delete[] traced1;
        delete[] traced2;

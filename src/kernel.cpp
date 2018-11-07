@@ -978,7 +978,7 @@ extern "C"{
            int minpeak2 = INTEGER_VALUE(minpeak);
            int recurs2 = INTEGER_VALUE(recurs);
            int leng3 = LENGTH(out1);
-           leng3=leng3/10;
+           leng3 = leng3 / 10;
 
            double *rans;
            rans = REAL(out1);
@@ -986,10 +986,10 @@ extern "C"{
            double often=0;
 
            /* 1st recursive peak detection ************************************/
-           peakdetect(leng3,&often,recurs2,rans,weight2,drt4);
+           peakdetect(leng3, &often, recurs2, rans, weight2, drt4);
            if(often>0){
                /* check if peak-criteria fulfilled & filter *******************/
-               peakcrit1(rans,leng3,minpeak2,SB2,minint2,upint2,ended2,drt2,&often);
+               peakcrit1(rans, leng3, minpeak2, SB2, minint2, upint2, ended2, drt2, &often);
            };
            if(often>0){
                /* subtract + interpolate + get baseline ***********************/
