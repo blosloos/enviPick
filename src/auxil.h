@@ -357,7 +357,7 @@ inline void peakcrit2(
        double SN2
        ){
 
-       int n,m,to,p;
+       int n, m, to, p;
        double maxint,delint,delRT,meanint;
        int *traced1, *traced2, *traced3, *traced4, *peaked;
        traced1 = new int[int(often)];
@@ -445,17 +445,17 @@ inline void peakcrit2(
        }
        /* 2nd peak picking ****************************************************/
        /* define noise: mean deviation from baseline **************************/
-       meanint=0;
-       p=0;
-       for(n=0;n<leng3;n++){
-           if((rans[n+(4*leng3)]!=0)&(rans[n+(6*leng3)]==0)){
-               meanint=meanint+rans[n+(8*leng3)];
+       meanint = 0;
+       p = 0;
+       for(n = 0; n < leng3; n++){
+			/* must have an intensity, must not be part of a peak candidate, baseline intensity must be present */
+           if((rans[n + (4 * leng3)] != 0) && (rans[n + (6 * leng3)] == 0) && (rans[n + (7 * leng3)] != 0) ){
+               meanint = meanint + rans[n + (8 * leng3)]; /* = baseline-corrected intensity */
                p++;
            }
        }
-       if(p!=0){
-           meanint=meanint/double(p);
-           /*rans[0+(9*leng3)]=meanint;*/
+       if(p != 0){
+           meanint = meanint / double(p);
        };
        /* extract criteria from peaks *****************************************/
        for(n=0;n<leng3;n++){
@@ -478,8 +478,8 @@ inline void peakcrit2(
                        if(p>=minpeak2){
                            traced1[int(rans[(m-1)+(6*leng3)]-1)]=1;
                        }
-                       if(meanint!=0){
-                           if((maxint/meanint)>=SN2){
+                       if(meanint != 0){ /* any noise catched? */
+                           if((maxint / meanint) >= SN2){
                                traced2[int(rans[(m-1)+(6*leng3)]-1)]=1;
                            }
                        }else{

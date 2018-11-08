@@ -994,7 +994,7 @@ extern "C"{
            if(often>0){
                /* subtract + interpolate + get baseline ***********************/
                /* 2nd peak criteria check *************************************/
-               peakcrit2(rans,leng3,minpeak2,minint2,upint2,win2,often,SN2);
+               peakcrit2(rans, leng3, minpeak2, minint2, upint2, win2, often, SN2);
            }
            UNPROTECT(12);
            return out1;
