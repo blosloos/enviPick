@@ -204,59 +204,115 @@ inline void peakcrit1(
        double *often
        ){
 
-       int n, m, to, p, dont;
-       double maxSB;
-       int *traced1, *traced2, *traced3, *traced4, *peaked;
-       traced1 = new int[int(often[0])];
-       traced2 = new int[int(often[0])];
-       traced3 = new int[int(often[0])];
-       traced4 = new int[int(often[0])];
-       peaked = new int[int(often[0])];
-       for(n = 0; n < int(often[0]); n++){
-               traced1[n] = 0;
-               traced2[n] = 0;
-               traced3[n] = 0;
-               traced4[n] = 0;
-               peaked[n] = 0;
-       };
+		int n, m, to, p, dont, a, b;
+		double maxSB,maxint;
+		bool found_end, found_minpeaks, evaluate_lower, evaluate_upper;
+		int *traced1, *traced2, *traced3, *traced4, *peaked;
+		traced1 = new int[int(often[0])];
+		traced2 = new int[int(often[0])];
+		traced3 = new int[int(often[0])];
+		traced4 = new int[int(often[0])];
+		peaked = new int[int(often[0])];
+		for(n = 0; n < int(often[0]); n++){
+			traced1[n] = 0;
+			traced2[n] = 0;
+			traced3[n] = 0;
+			traced4[n] = 0;
+			peaked[n] = 0;
+		};
 
-       /* extract criteria from peaks *****************************************/
-       for(n = 0; n < leng3; n++){
-                   if(rans[n + (5 * leng3)] != 0){ /* 1st pick */
-                       p = 1;
-                       maxSB = 0;
-                       for(m = 0; m < leng3; m++){
-                           if(rans[n + (5 * leng3)] == rans[m + (5 * leng3)]){ /* must be of same 1st pick */
-                                /* based on both n and m must be centroids, not interpolated data */ 
-								if((rans[n] != 0) && (rans[m] != 0)){
-									if( (fabs(rans[m + (2 * leng3)] - rans[n + (2 * leng3)]) <= drt2) && (m > n) ){
-									   p++;
-								   }   
+		/* extract criteria from peaks - new version ***************************/	   
+		n = 0;
+		while(n < leng3){
+			if(rans[n + (5 * leng3)] != 0){ /* 1st pick - got start of peak = n */
+				found_end = false;
+				for(m = n; m < leng3; m++){ /* 1st pick - get end of peak = m */
+					if(rans[n + (5 * leng3)] != rans[m + (5 * leng3)]){
+						found_end = true;
+						break;
+					} /* else reached end < leng3 */
+				}
+				if(found_end){m--;}
+				/*  -> evaluate minint2 and upint2 */
+				maxint = 0;
+				for(a = n; a <= m; a++){
+					if(rans[a + (4 * leng3)] > maxint) maxint = rans[a + (4 * leng3)];
+				}
+				if(maxint >= minint2){
+					traced3[int(rans[n + (5 * leng3)] - 1)] = 1;
+				}
+				if(maxint >= upint2){
+					traced4[int(rans[n + (5 * leng3)] - 1)] = 1;
+				}			
+				/*  -> evaluate minpeak within drt2 */
+				found_minpeaks = false;
+				if((m - n + 1) >= minpeak2){
+					for(a = n; a <= (m - 1); a++){
+						if(rans[a] != 0){
+							p = 1;
+							for(b = (a + 1); b <= m; b++){
+								if(fabs(rans[a + (2 * leng3)] - rans[b + (2 * leng3)]) > drt2){
+									break;
 								}
-							    /* based on the filtered data **************/
-                                if((rans[m + (4 * leng3)] / rans[n + (4 * leng3)]) > maxSB){
-                                   maxSB = (rans[m + (4 * leng3)] / rans[n + (4 * leng3)]);
-                                }
-                           }else{
-                               if(m > n){
-                                   break;
-                               }
-                           }
-                       }
-                       if(p >= minpeak2){
-                           traced1[int(rans[n + (5 * leng3)] - 1)] = 1;
-                       }
-                       if(maxSB >= SB2){
-                           traced2[int(rans[n + (5 * leng3)] - 1)] = 1;
-                       }
-                       if(rans[n + (4 * leng3)] >= minint2){
-                           traced3[int(rans[n + (5 * leng3)] - 1)] = 1;
-                       }
-                       if(rans[n + (4 * leng3)] >= upint2){
-                           traced4[int(rans[n + (5 * leng3)] - 1)] = 1;
-                       }
-                   }
-       }
+								if(rans[b] != 0){
+									p++;
+								}
+								if(p >= minpeak2){
+									found_minpeaks = true;
+									break;
+								}
+							}
+						}
+						if(found_minpeaks){break;}
+					}
+				}
+				if(found_minpeaks){ 
+					traced1[int(rans[n + (5 * leng3)] - 1)] = 1;
+				}
+				/* -> evaluate two-sided S/B, if next centroids on sides are not peak candidates themselves */
+				evaluate_lower = true;
+				if(n == 0){ /* do not evaluate lower S/B if rigth at RT start ... */
+					evaluate_lower = false;
+				}else{ /* ... or right adjacent to another peak candidate*/
+					if(rans[(n - 1) + (5 * leng3)] != 0){evaluate_lower = false;}
+				}
+				
+				evaluate_upper = true;
+				if(m == (leng3 - 1)){ /* do not evaluate lower S/B if rigth at RT end ... */
+					evaluate_upper = false;
+				}else{ /* ... or right adjacent to another peak candidate*/
+					if(rans[(m + 1) + (5 * leng3)] != 0){evaluate_upper = false;}
+				}
+				if(!evaluate_lower && !evaluate_upper){
+					traced2[int(rans[n + (5 * leng3)] - 1)] = 1;
+				}else{
+					if(evaluate_lower && !evaluate_upper){
+						if((maxint / rans[n + (4 * leng3)]) >= SB2){
+							traced2[int(rans[n + (5 * leng3)] - 1)] = 1;
+						}
+					}else{
+						if(!evaluate_lower && evaluate_upper){
+							if((maxint / rans[m + (4 * leng3)]) >= SB2){
+								traced2[int(rans[n + (5 * leng3)] - 1)] = 1;
+							}					
+						}else{
+							if(
+								((maxint / rans[n + (4 * leng3)]) >= SB2) &&
+								((maxint / rans[m + (4 * leng3)]) >= SB2) 						
+							){
+								traced2[int(rans[n + (5 * leng3)] - 1)] = 1;
+							}					
+					
+						}
+					}
+					
+				}			
+				n = (m + 1); /* continue n after 1st pick */
+			}else{
+				n++;
+			}
+		}
+	
        /* evaluate criteria - write peaks *************************************/
        to = 1;
        dont = 0;
