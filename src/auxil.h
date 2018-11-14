@@ -205,7 +205,7 @@ inline void peakcrit1(
        ){
 
 		int n, m, to, p, dont, a, b;
-		double maxSB,maxint;
+		double maxint;
 		bool found_end, found_minpeaks, evaluate_lower, evaluate_upper;
 		int *traced1, *traced2, *traced3, *traced4, *peaked;
 		traced1 = new int[int(often[0])];
