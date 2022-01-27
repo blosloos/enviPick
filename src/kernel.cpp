@@ -958,7 +958,7 @@ extern "C"{
            PROTECT(drttotal = AS_NUMERIC(drttotal));
            PROTECT(minpeak = AS_INTEGER(minpeak));
            PROTECT(recurs = AS_INTEGER(recurs));
-           PROTECT(weight = AS_INTEGER(weight));
+           PROTECT(weight = AS_NUMERIC(weight));
            PROTECT(SB = AS_NUMERIC(SB));
            PROTECT(SN = AS_NUMERIC(SN));
            PROTECT(minint = AS_NUMERIC(minint));
