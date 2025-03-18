@@ -950,7 +950,8 @@ extern "C"{
                         SEXP minint,
                         SEXP upint,
                         SEXP ended,
-                        SEXP win
+                        SEXP win,
+						SEXP check_SB_neighbor
             ){
 
            PROTECT(out1 = AS_NUMERIC(out1));
@@ -972,6 +973,7 @@ extern "C"{
            double minint2 = NUMERIC_VALUE(minint);
            double upint2 = NUMERIC_VALUE(upint);
            double SB2 = NUMERIC_VALUE(SB);
+		   int check_SB_neighbor2 = INTEGER_VALUE(check_SB_neighbor);
            double SN2 = NUMERIC_VALUE(SN);
            int win2 = INTEGER_VALUE(win);
            int ended2 = INTEGER_VALUE(ended);
@@ -989,7 +991,7 @@ extern "C"{
            peakdetect(leng3, &often, recurs2, rans, weight2, drt4);
            if(often>0){
                /* check if peak-criteria fulfilled & filter *******************/
-               peakcrit1(rans, leng3, minpeak2, SB2, minint2, upint2, ended2, drt2, &often);
+               peakcrit1(rans, leng3, minpeak2, SB2, minint2, upint2, ended2, drt2, &often, check_SB_neighbor2);
            };
            if(often>0){
                /* subtract + interpolate + get baseline ***********************/

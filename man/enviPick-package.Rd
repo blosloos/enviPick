@@ -17,8 +17,8 @@ Browser UI for non-R users. Batch processing.
 \tabular{ll}{
 Package: \tab enviPick\cr
 Type: \tab Package\cr
-Version: \tab 1.0\cr
-Date: \tab 2014-14-07\cr
+Version: \tab 1.8\cr
+Date: \tab 2025-03-17\cr
 License: \tab GPL-2\cr
 }
 After initial upload of an .mzXML file with \code{\link[enviPick]{readMSdata}}, above steps (1) to (3) are 

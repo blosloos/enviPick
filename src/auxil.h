@@ -201,7 +201,8 @@ inline void peakcrit1(
        double upint2,
        double ended2,
        double drt2,
-       double *often
+       double *often,
+	   int check_SB_neighbor
        ){
 
 		int n, m, to, p, dont, a, b;
@@ -274,15 +275,16 @@ inline void peakcrit1(
 				if(n == 0){ /* do not evaluate lower S/B if rigth at RT start ... */
 					evaluate_lower = false;
 				}else{ /* ... or right adjacent to another peak candidate*/
-					if(rans[(n - 1) + (5 * leng3)] != 0){evaluate_lower = false;}
+					if(check_SB_neighbor == 1) if(rans[(n - 1) + (5 * leng3)] != 0){evaluate_lower = false;}
 				}
 				
 				evaluate_upper = true;
 				if(m == (leng3 - 1)){ /* do not evaluate lower S/B if rigth at RT end ... */
 					evaluate_upper = false;
 				}else{ /* ... or right adjacent to another peak candidate*/
-					if(rans[(m + 1) + (5 * leng3)] != 0){evaluate_upper = false;}
+					if(check_SB_neighbor == 1) if(rans[(m + 1) + (5 * leng3)] != 0){evaluate_upper = false;}
 				}
+				
 				if(!evaluate_lower && !evaluate_upper){
 					traced2[int(rans[n + (5 * leng3)] - 1)] = 1;
 				}else{

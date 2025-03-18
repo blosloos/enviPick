@@ -80,6 +80,7 @@ function(           MSlist,
 			as.numeric(maxint),   # maximum intensity threshold
 			as.integer(ended),
 			as.integer(2),
+			as.integer(1),
 			PACKAGE = "enviPick"
 		  )     
 		  out2 <- matrix(out2, ncol = 10);
