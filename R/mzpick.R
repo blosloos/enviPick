@@ -19,53 +19,51 @@ function(           MSlist,
 
     ############################################################################
     # check inputs #############################################################
-	if(all(is.na(match(get_mass, c("mean", "wmean"))))){stop("Wrong wmean argument")}
-    if(!length(MSlist)==8){stop("This is not an MSlist object")}
-    if(minpeak<=0){stop("minpeak must be >0!")};
-    if(drtsmall<=0 || drtsmall<=0){stop("drt must be >0!")};
-    if(!is.loaded("pickpeak")){stop(".Call to pickpeak failed!")};
-    if(!is.loaded("gapfill")){stop(".Call to gapfill failed!")};
-    if(!is.loaded("picklist")){stop(".Call to picklist failed!")};
-    if(minint>=maxint){stop("Revise your minint & maxint settings!")}
-    if(ended<1){stop("Wrong ended argument!")}
-    if(!is.integer(recurs)){recurs<-ceiling(recurs);recurs<-as.integer(recurs)}
-    if(!is.integer(ended)){ended<-ceiling(ended);ended<-as.integer(ended)}
-    if(!is.integer(minpeak)){minpeak<-ceiling(minpeak);minpeak<-as.integer(minpeak)}
-    if(!is.list(MSlist)){stop("Invalid MSlist argument!")}
-    if(!MSlist[[1]][[3]]){stop("MSlist invalid. Use mzMLtoMSlist, mzpart and mzclust first.")}
-    if(!to){n=length(MSlist[[6]][,1])}else{n=to}
-    if(!from){m=1}else{m=from}    
+	if(all(is.na(match(get_mass, c("mean", "wmean"))))) stop("Wrong wmean argument")
+    if(!length(MSlist)==8) stop("This is not an MSlist object")
+    if(minpeak <= 0) stop("minpeak must be > 0!")
+    if(drtsmall <= 0 || drtsmall<=0) stop("drt must be > 0!")
+    if(!is.loaded("pickpeak")) stop(".Call to pickpeak failed!")
+    if(!is.loaded("gapfill")) stop(".Call to gapfill failed!")
+    if(!is.loaded("picklist")) stop(".Call to picklist failed!")
+    if(minint >= maxint){stop("Revise your minint & maxint settings!")}
+    if(ended < 1){stop("Wrong ended argument!")}
+    if(!is.integer(recurs)){recurs <- ceiling(recurs); recurs <- as.integer(recurs)}
+    if(!is.integer(ended)){ended <- ceiling(ended); ended <- as.integer(ended)}
+    if(!is.integer(minpeak)){minpeak <- ceiling(minpeak); minpeak <- as.integer(minpeak)}
+    if(!is.list(MSlist)) stop("Invalid MSlist argument!")
+    if(!MSlist[[1]][[3]]) stop("MSlist invalid. Use mzMLtoMSlist, mzpart and mzclust first.")
+    n <- if(!to) nrow(MSlist[[6]]) else to
+    m <- if(!from)1 else from   
     ############################################################################
     # reset if rerun ###########################################################
-    MSlist[[7]]<-0;
-    MSlist[[8]]<-0;
-    MSlist[[4]][[2]][,7]<-rep(0,length(MSlist[[4]][[2]][,4]));
+    MSlist[[7]] <- MSlist[[8]] <- 0
+    MSlist[[4]][[2]][, 7] <- rep(0,length(MSlist[[4]][[2]][, 4]))
     ############################################################################
-    if(progbar==TRUE){
-      prog<-winProgressBar("EIC peak detection",min=m,max=n);
+    if(progbar){
+      prog <- winProgressBar("EIC peak detection",min=m,max=n);
       setWinProgressBar(prog, 0, title = "EIC peak detection", label = NULL);
     }
-    startat<-c(0);
-    peaknumb<-c(0);
-    MSlist[[4]][[2]][,4]<-seq(1,length(MSlist[[4]][[2]][,4]),1); 
+    startat <- peaknumb <- c(0)
+    MSlist[[4]][[2]][, 4] <- seq(1, length(MSlist[[4]][[2]][, 4]), 1); 
     for(i in m:n){    
-		if(MSlist[[6]][i,3] >= minpeak){
-		  if(progbar==TRUE){setWinProgressBar(prog, i, title = "EIC  peak detection", label = NULL);}
+		if(MSlist[[6]][i, 3] >= minpeak){
+		  if(progbar == TRUE){setWinProgressBar(prog, i, title = "EIC  peak detection", label = NULL);}
 		  # same RT, interpolate ###################################################
 		  out1 <- .Call("gapfill",
-			as.numeric(MSlist[[4]][[2]][MSlist[[6]][i,1]:MSlist[[6]][i,2],3]),
-			as.numeric(MSlist[[4]][[2]][MSlist[[6]][i,1]:MSlist[[6]][i,2],2]),
-			as.integer(order(MSlist[[4]][[2]][MSlist[[6]][i,1]:MSlist[[6]][i,2],3], decreasing = FALSE)),
-			as.numeric(MSlist[[4]][[2]][MSlist[[6]][i,1]:MSlist[[6]][i,2],1]),
-			as.numeric(MSlist[[4]][[2]][MSlist[[6]][i,1]:MSlist[[6]][i,2],4]),
+			as.numeric(MSlist[[4]][[2]][MSlist[[6]][i, 1]:MSlist[[6]][i, 2], 3]),
+			as.numeric(MSlist[[4]][[2]][MSlist[[6]][i, 1]:MSlist[[6]][i, 2], 2]),
+			as.integer(order(MSlist[[4]][[2]][MSlist[[6]][i,1]:MSlist[[6]][i, 2], 3], decreasing = FALSE)),
+			as.numeric(MSlist[[4]][[2]][MSlist[[6]][i, 1]:MSlist[[6]][i, 2], 1]),
+			as.numeric(MSlist[[4]][[2]][MSlist[[6]][i, 1]:MSlist[[6]][i, 2], 4]),
 			as.numeric(MSlist[[4]][[1]]),
 			as.numeric(drtfill),
 			PACKAGE = "enviPick"
 			)
-		  out1<-matrix(out1,ncol=10);
-		  colnames(out1)<-c("m/z","intens","RT","index","intens_filt","1pick","pickcrit","baseline","intens_corr","2pick");                       
+		  out1 <- matrix(out1, ncol = 10)
+		  colnames(out1) <- c("m/z", "intens", "RT", "index", "intens_filt", "1pick", "pickcrit", "baseline", "intens_corr", "2pick")               
 		  # Filter step ############################################################
-		  out1[,5]<-out1[,2];   # yet to be implemented!
+		  out1[, 5] <- out1[, 2]   # yet to be implemented!
 		  # 1st peak detection & baseline subtraction & 2nd peak detection ##########  
 		  out2 <- .Call("pickpeak",          
 			as.numeric(out1),
@@ -81,84 +79,86 @@ function(           MSlist,
 			as.integer(ended),
 			as.integer(2),
 			as.integer(1),
+			as.integer(1),
+			as.integer(0),
 			PACKAGE = "enviPick"
 		  )     
 		  out2 <- matrix(out2, ncol = 10);
-		  colnames(out2)<-c("m/z","intens","RT","index","intens_filt","1pick","pickcrit","baseline","intens_corr","2pick");
+		  colnames(out2) <- c("m/z","intens","RT","index","intens_filt","1pick","pickcrit","baseline","intens_corr","2pick");
 		  # assign final entries ####################################################
-		  if(!all(out2[,10]==0)){      
+		  if(!all(out2[, 10] == 0)){      
 			peaknumb <- peaknumb + max(out2[,10]);
-			out2[,10] <- out2[,10] + startat;         
-			for(k in 1:length(out2[,10])){ # very unelegant approach to remove gap-filling -> revise!
+			out2[,10] <- out2[, 10] + startat;         
+			for(k in 1:length(out2[, 10])){ # very unelegant approach to remove gap-filling -> revise!
 				if(out2[k, 10] != startat){
-					MSlist[[4]][[2]][out2[k,4],7] <- out2[k,10]
+					MSlist[[4]][[2]][out2[k, 4], 7] <- out2[k, 10]
 				}
 			}        
 			startat <- c(max(out2[,10]));
-			MSlist[[4]][[2]][MSlist[[6]][i,1]:MSlist[[6]][i,2],] <-
-				MSlist[[4]][[2]][MSlist[[6]][i,1]:MSlist[[6]][i,2],][order(
-					MSlist[[4]][[2]][MSlist[[6]][i,1]:MSlist[[6]][i,2],7], decreasing = FALSE),];   
+			MSlist[[4]][[2]][MSlist[[6]][i, 1]:MSlist[[6]][i, 2],] <-
+				MSlist[[4]][[2]][MSlist[[6]][i, 1]:MSlist[[6]][i, 2],][order(
+					MSlist[[4]][[2]][MSlist[[6]][i, 1]:MSlist[[6]][i, 2], 7], decreasing = FALSE),];   
 		  }
 		}
     }              
     ############################################################################
 	maxit <- max(MSlist[[4]][[2]][,7]);
     # generate peak ID table ###################################################
-    if(maxit>0){
-		if(progbar==TRUE){setWinProgressBar(prog, i, title = "Generate index", label = NULL);}
+    if(maxit){
+		if(progbar == TRUE){setWinProgressBar(prog, i, title = "Generate index", label = NULL);}
 		index <- .Call("indexed",
-			as.integer(MSlist[[4]][[2]][,7]),
-			as.numeric(MSlist[[4]][[2]][,2]),
+			as.integer(MSlist[[4]][[2]][, 7]),
+			as.numeric(MSlist[[4]][[2]][, 2]),
 			as.integer(minpeak),
 			as.numeric(maxint),
 			as.integer(maxit),
 			PACKAGE="enviPick"
 		)
 		if(any(index[,2]!=0)){
-			index <- index[index[,2] != 0,,drop=FALSE];
+			index <- index[index[,2] != 0,, drop = FALSE];
 			partID <- .Call("partID",
 				as.integer(index),
-				as.integer(length(MSlist[[4]][[2]][,7])),
+				as.integer(length(MSlist[[4]][[2]][, 7])),
 				PACKAGE = "enviPick"  
 			)
-			MSlist[[4]][[2]][,7] <- partID
-			colnames(index) <- c("start_ID","end_ID","number_peaks");
+			MSlist[[4]][[2]][, 7] <- partID
+			colnames(index) <- c("start_ID", "end_ID", "number_peaks")
 			MSlist[[7]]<-index
 		}
 	}
     ############################################################################
-    maxit<-max(MSlist[[4]][[2]][,7]);
+    maxit <- max(MSlist[[4]][[2]][, 7])
 	# generate peaklist ########################################################
-    if(maxit > 0){
- 	  peaklist <- matrix(0,ncol=11,nrow=maxit)
-      colnames(peaklist) <- c("m/z","var_m/z","max_int","sum_int","RT","minRT","maxRT","part_ID","EIC_ID","peak_ID","Score")
+    if(maxit){
+ 	  peaklist <- matrix(0, ncol = 11, nrow = maxit)
+      colnames(peaklist) <- c("m/z", "var_m/z", "max_int", "sum_int", "RT", "minRT", "maxRT", "part_ID", "EIC_ID", "peak_ID", "Score")
       if(progbar == TRUE){setWinProgressBar(prog, i, title = "Generate peak table", label = NULL);}
-      for(i in 1:length(MSlist[[7]][,1])){
+      for(i in 1:length(MSlist[[7]][, 1])){
 		if(get_mass == "mean"){
-			peaklist[i,1] <- mean(MSlist[[4]][[2]][MSlist[[7]][i,1]:MSlist[[7]][i,2],1])
+			peaklist[i, 1] <- mean(MSlist[[4]][[2]][MSlist[[7]][i, 1]:MSlist[[7]][i, 2], 1])
         }
 		if(get_mass == "wmean"){
 			peaklist[i,1] <- weighted.mean(
-				x = (MSlist[[4]][[2]][MSlist[[7]][i,1]:MSlist[[7]][i,2],1]),
-				w = (MSlist[[4]][[2]][MSlist[[7]][i,1]:MSlist[[7]][i,2],2])
+				x = (MSlist[[4]][[2]][MSlist[[7]][i, 1]:MSlist[[7]][i, 2], 1]),
+				w = (MSlist[[4]][[2]][MSlist[[7]][i, 1]:MSlist[[7]][i, 2], 2])
 			)
         }		
-		peaklist[i,2] <- var(MSlist[[4]][[2]][MSlist[[7]][i,1]:MSlist[[7]][i,2],1])
-        peaklist[i,3] <- max(MSlist[[4]][[2]][MSlist[[7]][i,1]:MSlist[[7]][i,2],2])
-        peaklist[i,4] <- sum(MSlist[[4]][[2]][MSlist[[7]][i,1]:MSlist[[7]][i,2],2])
-        peaklist[i,5] <- (MSlist[[4]][[2]][MSlist[[7]][i,1]:MSlist[[7]][i,2],3][MSlist[[4]][[2]][MSlist[[7]][i,1]:MSlist[[7]][i,2],2]==max(MSlist[[4]][[2]][MSlist[[7]][i,1]:MSlist[[7]][i,2],2])[1]])[1]
-		peaklist[i,6] <- min(MSlist[[4]][[2]][MSlist[[7]][i,1]:MSlist[[7]][i,2],3])
-        peaklist[i,7] <- max(MSlist[[4]][[2]][MSlist[[7]][i,1]:MSlist[[7]][i,2],3])        
-        peaklist[i,8:10] <- MSlist[[4]][[2]][MSlist[[7]][i,1],5:7]
-        peaklist[i,11] <- 0;
+		peaklist[i, 2] <- var(MSlist[[4]][[2]][MSlist[[7]][i, 1]:MSlist[[7]][i, 2], 1])
+        peaklist[i, 3] <- max(MSlist[[4]][[2]][MSlist[[7]][i, 1]:MSlist[[7]][i, 2], 2])
+        peaklist[i, 4] <- sum(MSlist[[4]][[2]][MSlist[[7]][i, 1]:MSlist[[7]][i, 2], 2])
+        peaklist[i, 5] <- (MSlist[[4]][[2]][MSlist[[7]][i, 1]:MSlist[[7]][i,2], 3][MSlist[[4]][[2]][MSlist[[7]][i, 1]:MSlist[[7]][i, 2], 2]==max(MSlist[[4]][[2]][MSlist[[7]][i, 1]:MSlist[[7]][i, 2], 2])[1]])[1]
+		peaklist[i, 6] <- min(MSlist[[4]][[2]][MSlist[[7]][i, 1]:MSlist[[7]][i, 2], 3])
+        peaklist[i, 7] <- max(MSlist[[4]][[2]][MSlist[[7]][i, 1]:MSlist[[7]][i, 2], 3])        
+        peaklist[i, 8:10] <- MSlist[[4]][[2]][MSlist[[7]][i, 1], 5:7]
+        peaklist[i, 11] <- 0
       }
-      peaklist<-peaklist[order(peaklist[,3],decreasing=TRUE),,drop=FALSE];
-      MSlist[[8]]<-peaklist;
-	  MSlist[[3]][[6]]<-length(peaklist[,1])
+      peaklist <- peaklist[order(peaklist[, 3],decreasing = TRUE),, drop = FALSE];
+      MSlist[[8]] <- peaklist;
+	  MSlist[[3]][[6]] <- length(peaklist[, 1])
     }else{
-	  MSlist[[3]][[6]]<-"No peaks picked"
+	  MSlist[[3]][[6]] <- "No peaks picked"
 	}
-    if(progbar == TRUE){close(prog);}
+    if(progbar == TRUE){close(prog)}
     ############################################################################
     MSlist[[1]][[5]] <- TRUE;
     MSlist[[3]][[7]] <- length(MSlist[[4]][[2]][MSlist[[4]][[2]][,7]!=0,2])  

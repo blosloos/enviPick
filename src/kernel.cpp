@@ -1,7 +1,7 @@
 /*
 Partitioning, clustering & peak detection for LC-MS centroided data
-author: Martin Loos, Martin.Loos@eawag.ch
-Copyright (c) 2014 Eawag. All rights reserved.
+author: Martin Loos, mloos@envibee.ch
+Copyright (c) 2025 enviBee GmbH. All rights reserved.
 */
 
 #include <list>
@@ -951,7 +951,9 @@ extern "C"{
                         SEXP upint,
                         SEXP ended,
                         SEXP win,
-						SEXP check_SB_neighbor
+						SEXP check_SB_neighbor,
+						SEXP allow_lower_zero_SB,
+						SEXP check_consec_peaks
             ){
 
            PROTECT(out1 = AS_NUMERIC(out1));
@@ -966,6 +968,9 @@ extern "C"{
            PROTECT(upint = AS_NUMERIC(upint));
            PROTECT(ended = AS_INTEGER(ended));
            PROTECT(win = AS_INTEGER(win));
+		   PROTECT(check_SB_neighbor = AS_INTEGER(check_SB_neighbor));
+		   PROTECT(allow_lower_zero_SB = AS_INTEGER(allow_lower_zero_SB));
+		   PROTECT(check_consec_peaks = AS_INTEGER(check_consec_peaks));
 
            double drt2 = NUMERIC_VALUE(drtlarge);
            double drt4 = NUMERIC_VALUE(drttotal);
@@ -974,6 +979,8 @@ extern "C"{
            double upint2 = NUMERIC_VALUE(upint);
            double SB2 = NUMERIC_VALUE(SB);
 		   int check_SB_neighbor2 = INTEGER_VALUE(check_SB_neighbor);
+		   int allow_lower_zero_SB2 = INTEGER_VALUE(allow_lower_zero_SB);
+		   int check_consec_peaks2 = INTEGER_VALUE(check_consec_peaks);
            double SN2 = NUMERIC_VALUE(SN);
            int win2 = INTEGER_VALUE(win);
            int ended2 = INTEGER_VALUE(ended);
@@ -985,20 +992,25 @@ extern "C"{
            double *rans;
            rans = REAL(out1);
 
-           double often=0;
+           double often = 0;
 
            /* 1st recursive peak detection ************************************/
            peakdetect(leng3, &often, recurs2, rans, weight2, drt4);
-           if(often>0){
+           if(often > 0){
                /* check if peak-criteria fulfilled & filter *******************/
-               peakcrit1(rans, leng3, minpeak2, SB2, minint2, upint2, ended2, drt2, &often, check_SB_neighbor2);
+				if(check_consec_peaks2 == 0){	/* check for minpeak2 datapoints in drt2 */
+					peakcrit1(rans, leng3, minpeak2, SB2, minint2, upint2, ended2, drt2, &often, check_SB_neighbor2);
+				}
+				if(check_consec_peaks2 == 1){	/* check for consecutive minpeak2, allow_lower_zero_SB2, also check S/B for peaks at elution start or end*/
+					peakcrit2(rans, leng3, minpeak2, SB2, minint2, upint2, ended2, &often, check_SB_neighbor2, allow_lower_zero_SB2);
+				}
            };
-           if(often>0){
+           if(often > 0){
                /* subtract + interpolate + get baseline ***********************/
                /* 2nd peak criteria check *************************************/
-               peakcrit2(rans, leng3, minpeak2, minint2, upint2, win2, often, SN2);
+               peakcrit3(rans, leng3, minpeak2, minint2, upint2, win2, often, SN2);
            }
-           UNPROTECT(12);
+           UNPROTECT(14);
            return out1;
 
       }

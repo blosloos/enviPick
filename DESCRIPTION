@@ -1,8 +1,8 @@
 Package: enviPick
 Type: Package
 Title: Peak Picking for High Resolution Mass Spectrometry Data
-Version: 1.8
-Date: 2025-03-17
+Version: 1.92
+Date: 2025-04-01
 Author: Martin Loos
 Maintainer: Martin Loos <Martin.Loos@eawag.ch>
 Description: Sequential partitioning, clustering and peak detection of
