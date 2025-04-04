@@ -948,7 +948,7 @@ extern "C"{
                         SEXP SB,
                         SEXP SN,
                         SEXP minint,
-                        SEXP upint,
+                        SEXP maxint,
                         SEXP ended,
                         SEXP win,
 						SEXP check_SB_neighbor,
@@ -965,7 +965,7 @@ extern "C"{
            PROTECT(SB = AS_NUMERIC(SB));
            PROTECT(SN = AS_NUMERIC(SN));
            PROTECT(minint = AS_NUMERIC(minint));
-           PROTECT(upint = AS_NUMERIC(upint));
+           PROTECT(maxint = AS_NUMERIC(maxint));
            PROTECT(ended = AS_INTEGER(ended));
            PROTECT(win = AS_INTEGER(win));
 		   PROTECT(check_SB_neighbor = AS_INTEGER(check_SB_neighbor));
@@ -976,7 +976,7 @@ extern "C"{
            double drt4 = NUMERIC_VALUE(drttotal);
            double weight2 = NUMERIC_VALUE(weight);
            double minint2 = NUMERIC_VALUE(minint);
-           double upint2 = NUMERIC_VALUE(upint);
+           double maxint2 = NUMERIC_VALUE(maxint);
            double SB2 = NUMERIC_VALUE(SB);
 		   int check_SB_neighbor2 = INTEGER_VALUE(check_SB_neighbor);
 		   int allow_lower_zero_SB2 = INTEGER_VALUE(allow_lower_zero_SB);
@@ -999,18 +999,18 @@ extern "C"{
            if(often > 0){
                /* check if peak-criteria fulfilled & filter *******************/
 				if(check_consec_peaks2 == 0){	/* check for minpeak2 datapoints in drt2 */
-					peakcrit1(rans, leng3, minpeak2, SB2, minint2, upint2, ended2, drt2, &often, check_SB_neighbor2);
+					peakcrit1(rans, leng3, minpeak2, SB2, minint2, maxint2, ended2, drt2, &often, check_SB_neighbor2);
 				}
 				if(check_consec_peaks2 == 1){	/* check for consecutive minpeak2, allow_lower_zero_SB2, also check S/B for peaks at elution start or end*/
-					peakcrit2(rans, leng3, minpeak2, SB2, minint2, upint2, ended2, &often, check_SB_neighbor2, allow_lower_zero_SB2);
+					peakcrit2(rans, leng3, minpeak2, SB2, minint2, &often, check_SB_neighbor2, allow_lower_zero_SB2);
 				}
            };
            if(often > 0){
                /* subtract + interpolate + get baseline ***********************/
                /* 2nd peak criteria check *************************************/
-               peakcrit3(rans, leng3, minpeak2, minint2, upint2, win2, often, SN2);
+               peakcrit3(rans, leng3, minpeak2, minint2, maxint2, win2, often, SN2);
            }
-           UNPROTECT(14);
+           UNPROTECT(15);
            return out1;
 
       }
