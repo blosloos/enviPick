@@ -1211,12 +1211,14 @@ extern "C"{
                }
                rans[(4*counter1)]=maxint;
                rans[(4*counter1)+1]=counter1;
-			   delete does;
+			   /*delete does; gives a warning*/
+			   std::destroy_at(does);
                SETLENGTH(ans, counter1*5);
                UNPROTECT(12);
                return ans;
            }else{
-           	   delete does;
+           	   /*delete does; gives a warning*/
+			   std::destroy_at(does);
                UNPROTECT(11);
                return R_NilValue;
            }
