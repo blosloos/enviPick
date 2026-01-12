@@ -47,7 +47,7 @@ extern "C"{
             int *at;
             at = INTEGER_POINTER(outit);
             for(n = 0; n < leng; n++){*(at + n) = 0;}
-            SETLENGTH(outit, leng);
+			outit = Rf_lengthgets(outit, leng);
             int *these;
             these = new int[leng];
             int *those;
@@ -163,7 +163,7 @@ extern "C"{
 
             delete[] these;
             delete[] those;
-            SETLENGTH(outit, leng);
+			outit = Rf_lengthgets(outit, leng);
             UNPROTECT(6);
             return outit;
 
@@ -235,7 +235,7 @@ extern "C"{
                 *(at + (maxind*2) + atind) = counted;
             }
 
-            SETLENGTH(outit, maxind * 3);
+			outit = Rf_lengthgets(outit, maxind * 3);
             UNPROTECT(6);
             return outit;
 
@@ -324,7 +324,7 @@ extern "C"{
             for(n=0;n<leng;n++){
                    *(at+n) = peaked[n];
             }
-            SETLENGTH(outit,leng);
+			outit = Rf_lengthgets(outit, leng);
             UNPROTECT(4);
             delete[] peaked;
             return outit;
@@ -370,7 +370,7 @@ extern "C"{
             for(n=0;n<leng;n++){
                    *(at+n) = peaked[n];
             }
-            SETLENGTH(outit,leng);
+			outit = Rf_lengthgets(outit, leng);
             UNPROTECT(3);
             delete[] peaked;
             return outit;
@@ -823,7 +823,7 @@ extern "C"{
            for(n=0;n<leng2;n++){
                *(at+n) = densit[n];
            }
-           SETLENGTH(outit, leng2);
+		   outit = Rf_lengthgets(outit, leng2);
            delete[] densit;
            UNPROTECT(7);
            return outit;
@@ -1212,7 +1212,7 @@ extern "C"{
                rans[(4*counter1)]=maxint;
                rans[(4*counter1)+1]=counter1;
 			   delete does;
-               SETLENGTH(ans, counter1*5);
+			   ans = Rf_lengthgets(ans, counter1*5);
                UNPROTECT(12);
                return ans;
            }else{

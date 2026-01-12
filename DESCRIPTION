@@ -1,9 +1,9 @@
 Package: enviPick
 Type: Package
 Title: Peak Picking for High Resolution Mass Spectrometry Data
-Version: 1.93
-Date: 2025-04-04
-Author: Martin Loos
+Version: 1.94
+Date: 2026-01-12
+Authors@R: person(given = "Martin", family = "Loos", role = c("aut", "cre"), email = "mloos@envibee.ch")
 Maintainer: Martin Loos <Martin.Loos@eawag.ch>
 Description: Sequential partitioning, clustering and peak detection of
     centroided LC-MS mass spectrometry data (.mzXML). Interactive result and raw
