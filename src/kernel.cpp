@@ -1212,13 +1212,13 @@ extern "C"{
                rans[(4*counter1)]=maxint;
                rans[(4*counter1)+1]=counter1;
 
-			   std::destroy_at(does);
+			   delete does;
 			   ans = Rf_lengthgets(ans, counter1*5);
 
                UNPROTECT(12);
                return ans;
            }else{
-			   std::destroy_at(does);
+			   delete does;
                UNPROTECT(11);
                return R_NilValue;
            }
